@@ -1,25 +1,46 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config(); 
 
 module.exports = {
   development: {
     username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD_CLI,
+    password: process.env.DB_PASSWORD, // Make sure this matches your TiDB password in .env
     database: process.env.DB_NAME,
-    host: process.env.DB_HOST || 'localhost',
-    dialect: 'mysql'
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 4000,
+    dialect: 'mysql',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
   },
   test: {
     username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD_CLI,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    host: process.env.DB_HOST || 'localhost',
-    dialect: 'mysql'
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 4000,
+    dialect: 'mysql',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
   },
   production: {
     username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD_CLI,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    host: process.env.DB_HOST || 'localhost',
-    dialect: 'mysql'
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 4000,
+    dialect: 'mysql',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
   }
 };

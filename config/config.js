@@ -1,30 +1,36 @@
 import dotenv from 'dotenv';
-import { Sequelize,DataTypes,Model } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 dotenv.config();
 
-const DB_NAME=process.env.DB_NAME;
-const DB_USER=process.env.DB_USER;
-const DB_PASSWORD=process.env.DB_PASSWORD;
+const DB_NAME = process.env.DB_NAME;
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
 
 const config = {
     DB_NAME,
     DB_USER,
     DB_PASSWORD,
-    host:process.env.DB_HOST || 'localhost',
-    dialect:'mysql',
-    port:process.env.DB_PORT || 3306
-}
-
+    host: process.env.DB_HOST, // Now points to TiDB host
+    dialect: 'mysql',
+    port: process.env.DB_PORT || 4000 // TiDB uses 4000 by default
+};
 
 const sequelizeTZ = new Sequelize(config.DB_NAME, config.DB_USER, config.DB_PASSWORD, {
-    host:config.host,
-    dialect:config.dialect,
-    port:config.port
+    host: config.host,
+    dialect: config.dialect,
+    port: config.port,
+    logging: false, // Optional: Stops console spamming SQL queries
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false // Required for TiDB Cloud connection
+        }
+    }
 });
 
 sequelizeTZ.authenticate()
     .then(() => {
-        console.log('✅ Connection has been established successfully.');
+        console.log('✅ Connection to TiDB Cloud established successfully.');
     })
     .catch((error) => {
         console.error('❌ Unable to connect to the database:', error);
