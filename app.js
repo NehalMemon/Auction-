@@ -4,7 +4,6 @@ import path from "path";
 import indexroute from "./routes/indexRoute.js";
 import { fileURLToPath } from "url"; // 1. Import this
 import "./config/config.js";
-import fs from "fs";
 
 dotenv.config();
 
