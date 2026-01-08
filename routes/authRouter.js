@@ -1,23 +1,23 @@
 import express,{Router} from 'express';
 import authController from '../controllers/authController.js';
+import registerSchema from '../validators/authValidation.js'
+import validator from '../middlewares/formValidator.js';
 
 const router = Router();
 
-router.post('/register',authController.signupPost);
+router.post('/register',validator(registerSchema),authController.registerPost);
 router.post('/signin',authController.signinPost);
 router.post('/signout',authController.signuotPost);
-router.post('/forget-password',authController.forgetPost)
+router.post('/forget-password',authController.forgetPasswordPost)
+router.post('/reset-password',authController.resetPasswordPost)
 
 
-
-
-
-
-
-router.get('/signup',authController.signupGet);
+router.get('/register',authController.registerGet);
 router.get('/signin',authController.signinGet);
-router.patch('/update/:id',authController.updatePatch);
-router.delete('/delete/:id',authController.deleteDelete);
-router.get('/forget/:id',authController.forgetGet);
+router.get('/forget-password',authController.forgetPasswordGet);
+router.get('/reset-password',authController.resetPasswordGet);
+
+router.patch('/profile',authController.updatePatch);
+router.delete('/profile',authController.deleteDelete);
 
 export default router;
