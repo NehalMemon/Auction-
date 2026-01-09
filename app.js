@@ -20,16 +20,18 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", indexroute);
 
 // suraish code starts ---------------------------------------------------
-app.get("/admin/signin/video", (req, res) => res.render("admin-signin-video"));
-app.get("/admin/register/video", (req, res) =>
-  res.render("admin-register-video")
-);
+app.get("/admin/signin", (req, res) => res.render("admin-signin"));
+
+app.get("/admin/register", (req, res) => res.render("admin-register"));
+
 app.get("/addPlayer", (req, res) => {
   res.render("addPlayer");
 });
+
 app.get("/addOwner", (req, res) => {
   res.render("addOwner", { error: "Email already exists" });
 });
+
 // suraish code starts ---------------------------------------------------
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
