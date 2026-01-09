@@ -13,7 +13,7 @@
   <body class="relative h-screen w-screen overflow-hidden">
     <!-- Background Video -->
     <video autoplay muted loop class="absolute w-full h-full object-cover">
-      <source src="/videos/cricketShort.mp4" type="video/mp4" />
+      <source src="/videos/CricketVideoCompressed.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
@@ -23,13 +23,19 @@
     <!-- Sign In Form -->
     <div class="relative z-10 flex items-center justify-center h-screen">
       <div
-        class="b-white bg-opacity-90 p-8 rounded-lg shadow-md w-full max-w-md"
+        class="bg-black/20 
+        
+        bg-opacity-90 p-8 rounded-lg shadow-xl w-full max-w-md"
       >
         <h2 class="text-4xl font-bold text-center mb-8 text-red-600">
           Admin Sign In
         </h2>
 
-        <form action="/api/auth/signin" method="POST" class="space-y-4 text-white/70">
+        <form
+          action="/api/auth/signin"
+          method="POST"
+          class="space-y-4 text-white/70"
+        >
           <div>
             <label class="block mb-2">Email</label>
             <input
