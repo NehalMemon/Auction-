@@ -1,19 +1,27 @@
 import express,{Router} from 'express';
 import authController from '../controllers/authController.js';
+import ownerController from '../controllers/ownerController.js';
 import {registerSchema,loginSchema} from '../validators/authValidation.js'
 import validator from '../middlewares/formValidator.js';
-const requireAuth = require("../middleware/authMiddleware");
+import { requireAdminAuth } from "../middlewares/authMiddleware.js";
+import csrfProtection from '../middlewares/csrfProtection.js';
+import blockInProduction from '../middlewares/productionBlock.js';
+import { onlyAdmin, adminOrOwner } from '../middlewares/routeProtection.js';
 
 const router = Router();
 
+const parseCsrf = (req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+};
 
 // 1. ADMIN REGISTER
-router.get('/admin/register', authController.renderRegister);
-router.post('/admin/register', validator(registerSchema, 'adminRegister'), authController.handleRegister);
+router.get('/admin/register',blockInProduction, csrfProtection,parseCsrf, authController.renderRegister);
+router.post('/admin/register',blockInProduction,csrfProtection,parseCsrf, validator(registerSchema, 'adminRegister'), authController.handleRegister);
 
 // 2. ADMIN SIGN IN
-router.get('/admin/signin', authController.renderSignin);
-router.post('/admin/signin', validator(loginSchema, 'adminSignin'), authController.handleSignin);
+router.get('/admin/signin',csrfProtection,parseCsrf, authController.renderSignin);
+router.post('/admin/signin', csrfProtection,parseCsrf, validator(loginSchema, 'adminSignin'), authController.handleSignin);
 // 3. ADMIN SIGN OUT 
 router.post('/admin/signout', authController.handleSignout);
 
@@ -25,37 +33,27 @@ router.get('/admin/reset-password', authController.renderResetPassword);
 router.post('/admin/reset-password', authController.handleResetPassword);
 
 
-// 5. ADMIN PROFILE MANAGEMENT
-router.patch('/admin/profile', authController.handleUpdateProfile);
-router.delete('/admin/profile', authController.handleDeleteProfile);
-
-// 6. ADMIN DASHBOARD
-router.get('admin/dashboard',requireAuth, authController.renderDashboard); 
-
-
 
 // 1. OWNER REGISTER
-router.get('/register', authController.renderRegister);
-router.post('/register', validator(registerSchema), authController.handleRegister);
+router.get('/owner/register',onlyAdmin, ownerController.renderRegister);
+router.post('/owner/register', onlyAdmin, validator(registerSchema), ownerController.handleRegister);
 
 // 2. OWNER SIGN IN
-router.get('/signin', authController.renderSignin);
-router.post('/signin', authController.handleSignin);
+router.get('/owner/signin', ownerController.renderSignin);
+router.post('/owner/signin', ownerController.handleSignin);
 
-// 3. OWNER SIGN OUT 
-router.post('/signout', authController.handleSignout);
+// // 3. OWNER SIGN OUT 
+// router.post('/owner/signout', authController.handleSignout);
 
-// 4. OWNER PASSWORD RESET
-router.get('/forget-password', authController.renderForgetPassword);
-router.post('/forget-password', authController.handleForgetPassword);
+// // 4. OWNER PASSWORD RESET
+// router.get('/owner/forget-password', authController.renderForgetPassword);
+// router.post('/owner/forget-password', authController.handleForgetPassword);
+// router.get('/reset-password', authController.renderResetPassword);
+// router.post('/reset-password', authController.handleResetPassword);
 
-router.get('/reset-password', authController.renderResetPassword);
-router.post('/reset-password', authController.handleResetPassword);
 
-
-// 5. USER PROFILE MANAGEMENT
-router.patch('/profile', authController.handleUpdateProfile);
-router.delete('/profile', authController.handleDeleteProfile);
+// // 6. OWNER DASHBOARD
+// router.get('/owner/dashboard',adminOrOwner, authController.renderDashboard);
 
 
 

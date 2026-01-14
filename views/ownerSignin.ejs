@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login | Auction System</title>
+  <title>Owner Login | Auction System</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -39,7 +39,7 @@
       <p class="text-gray-400 mt-2">Please sign in to your dashboard</p>
     </div>
 
-    <form action="/auth/admin/signin" method="POST" class="space-y-5">
+    <form action="/auth/owner/signin" method="POST" class="space-y-5">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       
       <div>
@@ -60,7 +60,7 @@
             placeholder="••••••••">
         </div>
         <div class="flex justify-end mt-2">
-          <a href="/admin/forget-password" class="text-sm text-blue-400 hover:text-blue-300 font-medium hover:underline">Forgot password?</a>
+          <a href="/owner/forget-password" class="text-sm text-blue-400 hover:text-blue-300 font-medium hover:underline">Forgot password?</a>
         </div>
       </div>
 
@@ -70,12 +70,7 @@
       </button>
     </form>
 
-    <div class="mt-6 text-center border-t border-gray-700 pt-4">
-      <p class="text-sm text-gray-400">
-        Don't have an account? 
-        <a href="/auth/admin/register" class="text-blue-400 hover:text-blue-300 font-semibold hover:underline">Register here</a>
-      </p>
-    </div>
+    
   </div>
 
 </body>

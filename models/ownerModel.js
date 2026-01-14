@@ -27,6 +27,10 @@ ownerModel.init({
         allowNull: false,
         unique: true,
     },
+    isOwner: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+    }
 
 },
     {

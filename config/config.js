@@ -21,12 +21,22 @@ const sequelizeTZ = new Sequelize(config.DB_NAME, config.DB_USER, config.DB_PASS
     port: config.port,
     logging: false, // Optional: Stops console spamming SQL queries
     dialectOptions: {
+        // family: 4,
         ssl: {
             require: true,
             rejectUnauthorized: false // Required for TiDB Cloud connection
-        }
-    }
-});
+        },
+        connectTimeout: 60000
+    },pool: {
+      max: 5,
+      min: 0,
+      // 3. How long to wait for a connection from the pool
+      acquire: 60000, 
+      idle: 10000
+    },
+    logging: false
+  }
+);
 
 sequelizeTZ.authenticate()
     .then(() => {
