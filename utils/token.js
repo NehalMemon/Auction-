@@ -7,7 +7,7 @@ export const generateAccessToken = (user) => {
         email:user.email,
         id:user.id
      },process.env.ACCESS_TOKEN_SECRET,
-     {expiresIn:process.env.ACCESS_TOKEN_LIFE}
+     {expiresIn:parseInt(process.env.ACCESS_TOKEN_LIFE)/1000}
     )
 };
 
@@ -16,7 +16,7 @@ export const generateRefreshToken = (user) => {
        email:user.email,
        id:user.id
     },process.env.REFRESH_TOKEN_SECRET,
-    {expiresIn:process.env.REFRESH_TOKEN_LIFE}
+    {expiresIn:parseInt(process.env.REFRESH_TOKEN_LIFE)/1000}
    )
 };
 

@@ -37,7 +37,6 @@ refreshTokenModel.init({
     modelName:'RefreshToken',
     tableName:'refresh_tokens',
     timestamps:true,
-    paranoid:true 
 });
 
 export default refreshTokenModel;

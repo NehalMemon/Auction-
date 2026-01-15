@@ -80,6 +80,10 @@ playerModel.init({
         values: ['Platinum', 'Diamond', 'Gold', 'Silver'],
         defaultValue: 'Silver',
         allowNull: false,
+    },
+    isUser: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
     }
 }, {
     sequelize: sequelizeTZ,

@@ -2,7 +2,8 @@ import Admin from '../models/adminModel.js'
 import bcrypt from 'bcrypt';
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';
-import { generateAccessToken, generateRefreshToken } from '../utils/tokenUtils.js';
+import jwt from 'jsonwebtoken';
+import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
 const authController = {}
 
 
@@ -40,13 +41,13 @@ authController.handleRegister = async (req, res) => {
 
 
       req.flash('success', 'Registration successful! Please log in.');
-      return res.redirect('/api/auth/admin/signin');
+      return res.redirect('/auth/admin/signin');
 
    } catch (error) {
       console.error("Error creating admin:", error);
 
 
-      return res.render('/api/auth/admin/signin', {
+      return res.render('/auth/admin/signin', {
          title: 'Register New Admin',
          error_msg: 'Something went wrong. Please try again.',
          oldInput: req.body
@@ -74,17 +75,22 @@ authController.handleSignin = async (req, res) => {
          req.flash('error', 'Invalid email or password.');
          return res.status(400).redirect('/api/auth/admin/signin');
       }
+      // console.log(admin.id)
 
       const validPassword = await bcrypt.compare(password, admin.password);
       if (!validPassword) {
+         // console.log("Password did not match");
          req.flash('error', 'Invalid email or password.');
-         return res.status(400).redirect('/api/auth/admin/signin');
+         return res.status(400).redirect('/auth/admin/signin');
       }
+      // console.log("Password matched");
 
       const accessToken = generateAccessToken(admin);
+      // console.log("Access token generated");
+      // console.log(accessToken.slice(0,10)+"...");
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: admin.id } });
       if (oldRefreshToken) {
-         await oldRefreshToken.destroy();
+         await RefreshToken.destroy({where:{userId: admin.id}});
       }
       const refreshToken = generateRefreshToken(admin);
       const hashedToken = tokenHash(refreshToken);
@@ -113,13 +119,13 @@ authController.handleSignin = async (req, res) => {
 
 
       req.flash('success', 'Signed in successfully!');
-      return res.status(200).redirect('/api/auth/admin/dashboard');
+      return res.status(200).redirect('/admin/dashboard');
 
    }
    catch (error) {
       console.error("Error in POST /signin:", error);
       req.flash('error', 'An error occurred during sign in. Please try again.');
-      return res.status(500).redirect('/api/auth/admin/signin');
+      return res.status(500).redirect('/auth/admin/signin');
    }
 }
 
@@ -144,7 +150,7 @@ authController.handleSignout = (req, res) => {
    res.clearCookie("accessToken");
    res.clearCookie("refreshToken");
    req.flash('success', 'You have been signed out successfully.');
-   return res.status(200).redirected('/api/auth/admin/signin');
+   return res.redirect('/auth/admin/signin');
 
 }
 
@@ -153,7 +159,6 @@ authController.handleUpdateProfile = (req, res) => {
    const { id } = req.params;
    res.send(`update patch endpoint for id ${id} is working fine!`);
 }
-
 authController.renderUpdateProfile = (req, res) => {
    res.send("update Get endpoint working fine!");
 }
@@ -163,16 +168,14 @@ authController.handleDeleteProfile = (req, res) => {
    res.send("delete delete endpoint for id ${id} is working fine!");
 }
 
-authController.renderDashboard = (req, res) => {
-   const { id } = req.params;
-   res.send(`dashboard get endpoint for id ${id} is working fine!`);
-}
+
 
 authController.refreshToken = async (req, res, originalUrl) => {
    const refreshTokenFromCookie = req.cookies.refreshToken;
 
    if (!refreshTokenFromCookie) {
-      return res.status(401).json({ message: "Refresh token not provided" });
+      req.flash('error', 'Invalid refresh token. Please login again.');
+         return res.status(403).redirect('//auth/admin/signin');
    }
    try {
       const decoded = jwt.verify(refreshTokenFromCookie, process.env.REFRESH_TOKEN_SECRET);
@@ -180,17 +183,17 @@ authController.refreshToken = async (req, res, originalUrl) => {
 
       if (!storedToken) {
          req.flash('error', 'Invalid refresh token. Please login again.');
-         return res.status(403).redirect('/api/auth/admin/signin');
+         return res.status(403).redirect('/auth/admin/signin');
       }
 
       if (storedToken.token !== tokenHash(refreshTokenFromCookie)) {
          req.flash('error', 'Invalid refresh token. Please login again.');
-         return res.status(403).redirect('/api/auth/admin/signin');
+         return res.status(403).redirect('/auth/admin/signin');
       }
 
       if (storedToken.expiryDate < new Date()) {
             req.flash('error', 'Refresh token expired. Please login again.');
-            return res.status(403).redirect('/api/auth/admin/signin');
+            return res.status(403).redirect('/auth/admin/signin');
       }
 
       const newAccessToken = generateAccessToken({ id: decoded.id });
@@ -214,7 +217,7 @@ authController.refreshToken = async (req, res, originalUrl) => {
       maxAge: 15 * 60 * 1000
     });
       req.flash('success', 'User verified!');
-       return res.redirect(`/api/auth/admin/signin?redirect=${encodeURIComponent(originalUrl || "/")}`)
+       return res.redirect(`/auth/admin/signin?redirect=${encodeURIComponent(originalUrl || "/")}`)
    }
    catch (error) {
       console.error("Error in refreshing token:", error);
