@@ -1,34 +1,43 @@
 import dbConfig from '../config/config.js';
-const {sequelizeTZ,DataTypes, Model} = dbConfig;
+const { sequelizeTZ, DataTypes, Model } = dbConfig;
 
-class adminModel extends Model{}
+class adminModel extends Model {
+    static associate(models) {
+        adminModel.hasOne(models.RefreshToken, {
+            foreignKey: 'UserId',
+            as: 'user',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
+        })
+    };
+}
 
 adminModel.init({
-    id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    name:{
-        type:DataTypes.STRING,
-        allowNull:false,
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-    email:{
-        type:DataTypes.STRING,
-        allowNull:false,
-        unique:true,
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
     },
-    password:{
-        type:DataTypes.STRING,
-        allowNull:false,
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
     }
 },
-{
-    sequelize:sequelizeTZ,
-    modelName:'Admin',
-    tableName:'admins',
-    timestamps:true,
-    paranoid:true 
-});
+    {
+        sequelize: sequelizeTZ,
+        modelName: 'Admin',
+        tableName: 'admins',
+        timestamps: true,
+        paranoid: true
+    });
 
 export default adminModel;
