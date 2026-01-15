@@ -177,7 +177,7 @@ authController.refreshToken = async (req, res, originalUrl) => {
 
    if (!refreshTokenFromCookie) {
       req.flash('error', 'Invalid refresh token. Please login again.');
-      return res.status(403).redirect('//auth/admin/signin');
+      return res.status(403).redirect('/auth/admin/signin');
    }
    try {
       const decoded = jwt.verify(refreshTokenFromCookie, process.env.REFRESH_TOKEN_SECRET);
@@ -219,7 +219,10 @@ authController.refreshToken = async (req, res, originalUrl) => {
          maxAge: 15 * 60 * 1000
       });
       req.flash('success', 'User verified!');
-      return res.redirect(`/auth/admin/signin?redirect=${encodeURIComponent(originalUrl || "/")}`)
+      const redirectUrl = originalUrl && originalUrl !== '/auth/admin/signin'
+         ? originalUrl
+         : '/admin/dashboard';
+      return res.redirect(redirectUrl);
    }
    catch (error) {
       console.error("Error in refreshing token:", error);

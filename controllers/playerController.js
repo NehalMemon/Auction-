@@ -1,7 +1,5 @@
-import Admin from '../models/adminModel.js'
-// import Owner from '../models/ownerModel.js'
 import bcrypt from 'bcrypt';
-import Owner from '../models/ownerModel.js'
+import Player from '../models/playerModel.js'
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
@@ -21,10 +19,10 @@ playerController.renderRegister = async (req, res) => {
 playerController.handleRegister = async (req, res) => {
    try {
 
-      const { name, email, password } = req.validatedData;
+      const { name, email, phoneNumber,playingStyle, category,battingOrder,bowlingType  } = req.validatedData;
 
 
-      const existingPlayer = await Owner.findOne({ where: { email } });
+      const existingPlayer = await Player.findOne({ where: { email } });
 
       if (existingPlayer) {
          return res.render('createPlayer', {
@@ -36,20 +34,17 @@ playerController.handleRegister = async (req, res) => {
             }
          });
       }
-
-
-      const hash = await bcrypt.hash(password, 10);
-      await Owner.create({ name, email, password: hash });
+      await Player.create({ name, email, phoneNumber,playingStyle, category,battingOrder,bowlingType });
 
 
       req.flash('success', 'Registration successful! Please log in.');
-      return res.redirect('/auth/admin/dashboard');
+      return res.redirect('/admin/dashboard');
    } catch (error) {
-      console.error("Error creating owner:", error);
+      console.error("Error creating player:", error);
 
 
-      return res.render('createOwner', {
-         title: 'Register New Owner',
+      return res.render('createPlayer', {
+         title: 'Register New Player',
          error_msg: 'Something went wrong. Please try again.',
          oldInput: req.body
       });
@@ -58,7 +53,7 @@ playerController.handleRegister = async (req, res) => {
 
 playerController.renderAllPlayers = async (req, res) => {
    try {
-      const players = await Owner.findAll();  
+      const players = await Player.findAll();  
       res.render('players', { title: 'All Players', players });
    } catch (error) {
       console.error("Error fetching owners:", error);

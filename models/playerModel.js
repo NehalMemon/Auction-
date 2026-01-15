@@ -57,7 +57,7 @@ playerModel.init({
     },
     bowlingType: {
         type: DataTypes.ENUM,
-        values: ['Fast', 'Medium', 'Spin'],
+        values: ['Fast', 'Medium', 'Spin',],
         defaultValue: 'Fast',
         allowNull: true,
     },
@@ -81,10 +81,6 @@ playerModel.init({
         defaultValue: 'Silver',
         allowNull: false,
     },
-    isUser: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
-    }
 }, {
     sequelize: sequelizeTZ,
     modelName: 'Player', 

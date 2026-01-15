@@ -4,5 +4,5 @@ import {requireOwnerAuth, requireAdminAuth, requireAdminOrOwner} from "../middle
 const router = Router();
 
 
-router.get('/ownerslist', requireAdminOrOwner, playerController.renderAllPlayers);
+router.get('/playerslist', requireAdminOrOwner, playerController.renderAllPlayers);
 export default router;

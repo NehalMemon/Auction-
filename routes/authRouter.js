@@ -1,7 +1,8 @@
 import express,{Router} from 'express';
 import authController from '../controllers/authController.js';
 import ownerController from '../controllers/ownerController.js';
-import {registerSchema,loginSchema} from '../validators/authValidation.js'
+import playerController from '../controllers/playerController.js';
+import {registerSchema, loginSchema, playerRegisterSchema} from '../validators/authValidation.js'
 import validator from '../middlewares/formValidator.js';
 import { requireAdminAuth } from "../middlewares/authMiddleware.js";
 import csrfProtection from '../middlewares/csrfProtection.js';
@@ -54,6 +55,10 @@ router.post('/owner/signin', ownerController.handleSignin);
 // // 6. OWNER DASHBOARD
 // router.get('/owner/dashboard',adminOrOwner, authController.renderDashboard);
 
+
+// 1. PLAYER REGISTER
+router.get('/player/register',requireAdminAuth, playerController.renderRegister);
+router.post('/player/register', requireAdminAuth, validator(playerRegisterSchema), playerController.handleRegister);
 
 
 export default router;
