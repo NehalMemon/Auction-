@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
 const authController = {}
 
+// console
 
 authController.renderRegister = async (req, res) => {
    try {
