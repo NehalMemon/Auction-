@@ -6,7 +6,6 @@ import validator from '../middlewares/formValidator.js';
 import { requireAdminAuth } from "../middlewares/authMiddleware.js";
 import csrfProtection from '../middlewares/csrfProtection.js';
 import blockInProduction from '../middlewares/productionBlock.js';
-import { onlyAdmin, adminOrOwner } from '../middlewares/routeProtection.js';
 
 const router = Router();
 
@@ -23,7 +22,7 @@ router.post('/admin/register',blockInProduction,csrfProtection,parseCsrf, valida
 router.get('/admin/signin',csrfProtection,parseCsrf, authController.renderSignin);
 router.post('/admin/signin', csrfProtection,parseCsrf, validator(loginSchema, 'adminSignin'), authController.handleSignin);
 // 3. ADMIN SIGN OUT 
-router.post('/admin/signout', authController.handleSignout);
+router.post('/admin/signout',requireAdminAuth, authController.handleSignout);
 
 // 4. ADMIN PASSWORD RESET
 router.get('/admin/forget-password', authController.renderForgetPassword);
@@ -35,8 +34,8 @@ router.post('/admin/reset-password', authController.handleResetPassword);
 
 
 // 1. OWNER REGISTER
-router.get('/owner/register',onlyAdmin, ownerController.renderRegister);
-router.post('/owner/register', onlyAdmin, validator(registerSchema), ownerController.handleRegister);
+router.get('/owner/register',requireAdminAuth, ownerController.renderRegister);
+router.post('/owner/register', requireAdminAuth, validator(registerSchema), ownerController.handleRegister);
 
 // 2. OWNER SIGN IN
 router.get('/owner/signin', ownerController.renderSignin);

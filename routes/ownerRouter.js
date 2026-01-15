@@ -6,6 +6,7 @@ const router = Router();
 
 router.get('/dashboard', requireOwnerAuth, ownerController.renderDashboard);
 router.get('/ownerslist', requireAdminOrOwner, ownerController.renderAllOwners);
+router.post('/delete', requireOwnerAuth, ownerController.renderAllOwners);
 
 
 
