@@ -62,11 +62,6 @@ export const requireOwnerAuth = async (req, res, next) => {
   return ownerController.refreshToken(req, res, req.originalUrl);
 };
 
-
-
-
-// ... existing middlewares ...
-
 export const requireAdminOrOwner = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
 

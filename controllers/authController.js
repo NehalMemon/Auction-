@@ -90,11 +90,11 @@ authController.handleSignin = async (req, res) => {
       // console.log(accessToken.slice(0,10)+"...");
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: admin.id } });
       if (oldRefreshToken) {
-         await RefreshToken.destroy({where:{userId: admin.id}});
+         await RefreshToken.destroy({ where: { userId: admin.id } });
       }
       const refreshToken = generateRefreshToken(admin);
       const hashedToken = tokenHash(refreshToken);
-      const expiryDate = new Date().getDate() + parseInt(process.env.REFRESH_TOKEN_LIFE);
+      const expiryDate = new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_LIFE));
 
       await RefreshToken.create({
          token: hashedToken,
@@ -107,14 +107,14 @@ authController.handleSignin = async (req, res) => {
          httpOnly: true,
          secure: process.env.NODE_ENV === "production",
          sameSite: "strict",
-         maxAge: process.env.ACCESS_TOKEN_LIFE
+         maxAge: 15 * 60 * 1000
       });
 
       res.cookie("refreshToken", refreshToken, {
          httpOnly: true,
          secure: process.env.NODE_ENV === "production",
          sameSite: "strict",
-         maxAge: process.env.REFRESH_TOKEN_LIFE
+         maxAge: 7 * 24 * 60 * 60 * 1000
       });
 
 
@@ -146,9 +146,11 @@ authController.handleResetPassword = (req, res) => {
 }
 
 
-authController.handleSignout = (req, res) => {
+authController.handleSignout = async (req, res) => {
    res.clearCookie("accessToken");
    res.clearCookie("refreshToken");
+   const { id } = req.user;
+   await RefreshToken.destroy({ where: { userId: id } });
    req.flash('success', 'You have been signed out successfully.');
    return res.redirect('/auth/admin/signin');
 
@@ -175,7 +177,7 @@ authController.refreshToken = async (req, res, originalUrl) => {
 
    if (!refreshTokenFromCookie) {
       req.flash('error', 'Invalid refresh token. Please login again.');
-         return res.status(403).redirect('//auth/admin/signin');
+      return res.status(403).redirect('//auth/admin/signin');
    }
    try {
       const decoded = jwt.verify(refreshTokenFromCookie, process.env.REFRESH_TOKEN_SECRET);
@@ -192,8 +194,8 @@ authController.refreshToken = async (req, res, originalUrl) => {
       }
 
       if (storedToken.expiryDate < new Date()) {
-            req.flash('error', 'Refresh token expired. Please login again.');
-            return res.status(403).redirect('/auth/admin/signin');
+         req.flash('error', 'Refresh token expired. Please login again.');
+         return res.status(403).redirect('/auth/admin/signin');
       }
 
       const newAccessToken = generateAccessToken({ id: decoded.id });
@@ -203,26 +205,26 @@ authController.refreshToken = async (req, res, originalUrl) => {
       storedToken.expiryDate = new Date().getDate() + parseInt(process.env.REFRESH_TOKEN_LIFE);
       await storedToken.save();
 
-       res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+      res.cookie("refreshToken", newRefreshToken, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === "production",
+         sameSite: "strict",
+         maxAge: 7 * 24 * 60 * 60 * 1000
+      });
 
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000
-    });
+      res.cookie("accessToken", newAccessToken, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === "production",
+         sameSite: "strict",
+         maxAge: 15 * 60 * 1000
+      });
       req.flash('success', 'User verified!');
-       return res.redirect(`/auth/admin/signin?redirect=${encodeURIComponent(originalUrl || "/")}`)
+      return res.redirect(`/auth/admin/signin?redirect=${encodeURIComponent(originalUrl || "/")}`)
    }
    catch (error) {
       console.error("Error in refreshing token:", error);
       req.flash('error', 'An error occurred while verifying user. Please login again.');
-      }
+   }
 
 }
 
