@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add Owner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-black/90 flex justify-center items-center min-h-screen">
+    <div class="bg-white/5 p-8 rounded-lg p-8 shadow-md w-full max-w-md">
+      <h2 class="text-4xl font-bold mb-6 text-center text-white">
+        Add New Owner
+      </h2>
+
+      <form action="/api/owner/" method="POST" class="space-y-4">
+        <!-- Name -->
+        <input
+          type="text"
+          name="name"
+          placeholder="Owner Name"
+          class="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-transparent focus:ring-2 focus:ring-red-500 bg-transparent text-white"
+          required
+        />
+
+        <!-- Email -->
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          class="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-transparent focus:ring-2 focus:ring-red-500 bg-transparent text-white"
+          required
+        />
+
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+        >
+          Add Owner
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
