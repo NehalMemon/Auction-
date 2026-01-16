@@ -16,41 +16,39 @@ playerController.renderRegister = async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
    }
 }
+
 playerController.handleRegister = async (req, res) => {
    try {
-
-      const { name, email, phoneNumber,playingStyle, category,battingOrder,bowlingType  } = req.validatedData;
-
-      // console.log(req.validatedData);
-      console.log("hello")
-      
-
-      const existingPlayer = await Player.findOne({ where: { email } });
-
-      if (existingPlayer) {
-         return res.render('createPlayer', {
-            title: 'Register New Player',
-            error_msg: 'Email already exists!',
-            oldInput: {
-               name: req.body.name,
-               email: req.body.email
-            }
-         });
+      const { name, email, phoneNumber } = req.validatedData;
+      console.log(req.validationData);
+    
+      let { playingStyle, category, battingOrder, bowlingType, auctionCategory } = req.body; 
+      console.log(req.body);
+      console.log(req.file);
+     
+      if (bowlingType === "") {
+          bowlingType = null;
       }
-      await Player.create({ name, email, phoneNumber,playingStyle, category,battingOrder,bowlingType });
 
+      const imageUrl = req.file ? req.file.path : null;
 
-      req.flash('success', 'Registration successful! Please log in.');
-      return res.redirect('/admin/dashboard');
-   } catch (error) {
-      console.error("Error creating player:", error);
-
-
-      return res.render('createPlayer', {
-         title: 'Register New Player',
-         error_msg: 'Something went wrong. Please try again.',
-         oldInput: req.body
+      await Player.create({ 
+          name, 
+          email, 
+          phoneNumber, 
+          playingStyle, 
+          category, 
+          battingOrder, 
+          bowlingType,
+          auctionCategory,
+          playerImage: imageUrl 
       });
+
+      req.flash('success', 'Player registered successfully.');
+      return res.redirect('/admin/dashboard');
+
+   } catch (error) {
+    
    }
 }
 
@@ -58,6 +56,19 @@ playerController.renderAllPlayers = async (req, res) => {
    try {
       const players = await Player.findAll();  
       res.render('players', { title: 'All Players', players });
+   } catch (error) {
+      console.error("Error fetching owners:", error);
+      res.status(500).json({ message: "Internal server error" });
+   }  
+}
+
+
+playerController.renderPlayerProfile = async (req, res) => {
+   try {
+      const playerId = req.params.id;
+      const player = await Player.findByPk(playerId);  
+      
+      res.render('playerProfile', { title: 'Player Profile', player });
    } catch (error) {
       console.error("Error fetching owners:", error);
       res.status(500).json({ message: "Internal server error" });

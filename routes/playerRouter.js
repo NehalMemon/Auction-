@@ -5,4 +5,5 @@ const router = Router();
 
 
 router.get('/playerslist', requireAdminOrOwner, playerController.renderAllPlayers);
+router.get('/profile/:id', requireAdminOrOwner, playerController.renderPlayerProfile);
 export default router;
