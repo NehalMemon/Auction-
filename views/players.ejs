@@ -89,11 +89,49 @@
                                                 </div>
                                             </td>
 
-                                            <td class="px-6 py-4 whitespace-nowrap">
+                                            <!-- <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-900/30 text-blue-400 border border-blue-800">
-                                                    <%= player.category %>
+                                                    <%  if(player.category === 'Batsman') {%>
+                                                    <img src="/images/cricket-icons/Ball.png" class="bg-white rounded-full w-6 h-6">
+                      
+                                                    <% } else if(player.category === 'Bowler') { %>
+                                                        <p>Bowler</p>
+                                                    <% } else if(player.category === 'All-rounder') { %>
+                                                        <p>All-rounder</p>
+                                                    <% } else if(player.category === 'Wicket-keeper-batsman') { %>
+                                                        <p>Wicket-keeper-batsman</p>
+                                                    <% } %>
                                                 </span>
+                                            </td> -->
+
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                               <span class="inline-flex items-center gap-2 text-xs font-semibold rounded-full
+                                                           bg-blue-900/30 text-blue-400 border border-blue-800">
+
+                                                 <% if (player.category === 'Batsman') { %>
+                                                   <img src="/images/cricket-icons/cricket-bat.png"
+                                                       class="w-5 h-5 bg-whit rounded-full">
+                                                   
+
+                                                 <% } else if (player.category === 'Bowler') { %>
+                                                  <img src="/images/cricket-icons/bowler.png"
+                                                       class="w-5 h-5 bg-white rounded-full p-0.5">
+                                                 
+
+                                                <% } else if (player.category === 'All-rounder') { %>
+                                                  <img src="/images/cricket-icons/allrounder.png"
+                                                       class="w-5 h-5 bg-white rounded-full p-0.5">
+                                              
+                                            
+                                                <% } else if (player.category === 'Wicket-keeper-batsman') { %>
+                                                  <img src="/images/cricket-icons/wicketkeeper.png"
+                                                       class="w-5 h-5 bg-white rounded-full p-0.5">
+                                                  
+                                                <% } %>
+                                            
+                                              </span>
                                             </td>
+
 
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <% 
