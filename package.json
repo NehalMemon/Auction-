@@ -20,6 +20,7 @@
   "homepage": "https://github.com/NehalMemon/Auction-#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.7",
     "crypt": "^0.0.2",
@@ -29,6 +30,8 @@
     "express": "^5.2.1",
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "mysql2": "^3.16.0",
     "nodemon": "^3.1.11",
     "sequelize": "^6.37.7",
