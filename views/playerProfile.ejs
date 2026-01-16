@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= player.name %> - Profile | AuctionPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <aside class="w-64 bg-gray-800 border-r border-gray-700 hidden md:flex flex-col">
+            <div class="h-16 flex items-center justify-center border-b border-gray-700">
+                <h1 class="text-2xl font-bold text-blue-500 tracking-wider">AUCTION<span class="text-white">PRO</span></h1>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="/admin/dashboard" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                    <i class="fas fa-th-large w-6"></i> <span class="ml-3 font-medium">Dashboard</span>
+                </a>
+                <a href="/admin/players" class="flex items-center px-4 py-3 bg-gray-700 text-white rounded-lg transition-colors shadow-sm">
+                    <i class="fas fa-running w-6"></i> <span class="ml-3 font-medium">Players</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 flex flex-col overflow-hidden relative">
+            
+            <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-8">
+                <div class="flex items-center gap-4">
+                    <a href="/player/playerslist" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </a>
+                    <h2 class="text-xl font-semibold text-gray-200">Player Profile</h2>
+                </div>
+                
+              <div class="flex gap-3">
+    
+    <a href="/players/profile/edit/<%= player.id %>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md flex items-center gap-2">
+        <i class="fas fa-edit"></i> Edit
+    </a>
+
+    <form action="/players/profile/delete/<%= player.id %>" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+        
+        <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer">
+            <i class="fas fa-trash"></i> Delete
+        </button>
+    </form>
+
+</div>
+            </header>
+
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-900 p-8">
+                <div class="max-w-5xl mx-auto space-y-8">
+
+                    <div class="bg-gray-800 rounded-2xl border border-gray-700 shadow-xl overflow-hidden">
+                        
+                        <div class="h-32 bg-gradient-to-r from-blue-900 to-gray-800 relative">
+                            <div class="absolute top-6 right-8">
+                                <% 
+                                    let tierClass = 'bg-gray-700 text-gray-300 border-gray-600';
+                                    if(player.auctionCategory === 'Platinum') tierClass = 'bg-slate-200 text-slate-900 border-slate-300 font-bold';
+                                    if(player.auctionCategory === 'Diamond') tierClass = 'bg-purple-900/50 text-purple-300 border-purple-500';
+                                    if(player.auctionCategory === 'Gold') tierClass = 'bg-yellow-900/50 text-yellow-400 border-yellow-500';
+                                    if(player.auctionCategory === 'Silver') tierClass = 'bg-gray-600/50 text-gray-200 border-gray-500';
+                                %>
+                                <span class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border <%= tierClass %> shadow-lg backdrop-blur-sm">
+                                    <%= player.auctionCategory %> Category
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="px-8 pb-8">
+                            <div class="flex flex-col md:flex-row gap-8 items-start -mt-12">
+                                
+                                <div class="relative group">
+                                    <div class="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-gray-800 shadow-2xl overflow-hidden bg-gray-700 flex items-center justify-center">
+                                        <% if (player.playerImage) { %>
+                                            <img src="<%= player.playerImage %>" alt="<%= player.name %>" class="h-full w-full object-cover">
+                                        <% } else { %>
+                                            <span class="text-4xl font-bold text-gray-500 select-none">
+                                                <%= player.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() %>
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <div class="absolute bottom-2 right-2 md:bottom-4 md:right-4 h-6 w-6 rounded-full border-4 border-gray-800 <%= player.isSold ? 'bg-green-500' : 'bg-gray-500' %>" title="<%= player.isSold ? 'Sold' : 'Unsold' %>"></div>
+                                </div>
+
+                                <div class="flex-1 pt-2 md:pt-14">
+                                    <h1 class="text-3xl font-bold text-white mb-1"><%= player.name %></h1>
+                                    <div class="flex items-center gap-3 text-gray-400 mb-4">
+                                        <span class="flex items-center gap-1.5 bg-gray-700/50 px-3 py-1 rounded-full text-sm border border-gray-600">
+                                            <i class="fas fa-user-tag text-xs"></i> <%= player.category %>
+                                        </span>
+                                        <% if (player.isSold && player.teamId) { %>
+                                            <span class="flex items-center gap-1.5 bg-blue-900/30 text-blue-400 px-3 py-1 rounded-full text-sm border border-blue-800">
+                                                <i class="fas fa-shirt text-xs"></i> Team ID: <%= player.teamId %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="text-sm">Unsold Player</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+
+                                <div class="pt-14 text-right hidden md:block">
+                                    <p class="text-sm text-gray-400 mb-1">Current Valuation</p>
+                                    <% if (player.isSold) { %>
+                                        <div class="text-3xl font-bold text-green-400">
+                                            $<%= player.soldPrice.toLocaleString() %>
+                                        </div>
+                                        <p class="text-xs text-green-500/70 mt-1">SOLD</p>
+                                    <% } else { %>
+                                        <div class="text-3xl font-bold text-gray-600">
+                                            -
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-1">NOT SOLD YET</p>
+                                    <% } %>
+                                </div>
+
+                            </div>
+
+                            <hr class="border-gray-700 my-8">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                
+                                <div class="space-y-4">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Contact Info</h4>
+                                    
+                                    <div class="flex items-center gap-4 p-3 rounded-lg bg-gray-700/30 border border-gray-700/50">
+                                        <div class="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                            <i class="fas fa-envelope"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-400">Email Address</p>
+                                            <p class="text-sm font-medium text-white truncate"><%= player.email %></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-4 p-3 rounded-lg bg-gray-700/30 border border-gray-700/50">
+                                        <div class="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                            <i class="fas fa-phone"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-400">Phone Number</p>
+                                            <p class="text-sm font-medium text-white"><%= player.phoneNumber || 'N/A' %></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Batting Profile</h4>
+                                    
+                                    <div class="bg-gray-700/20 rounded-lg p-4 border border-gray-700/50">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-gray-400 text-sm">Playing Style</span>
+                                            <span class="text-white font-medium capitalize"><%= player.playingStyle %></span>
+                                        </div>
+                                        <div class="w-full bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                                            <div class="bg-blue-500 h-full w-full"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gray-700/20 rounded-lg p-4 border border-gray-700/50">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-gray-400 text-sm">Batting Order</span>
+                                            <span class="text-white font-medium capitalize"><%= player.battingOrder || 'Flexible' %></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Bowling Profile</h4>
+                                    
+                                    <% if (player.bowlingType) { %>
+                                        <div class="bg-gray-700/20 rounded-lg p-4 border border-gray-700/50">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <span class="text-gray-400 text-sm">Bowling Style</span>
+                                                <span class="text-white font-medium capitalize"><%= player.bowlingType %></span>
+                                            </div>
+                                            <div class="w-full bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                                                <div class="bg-purple-500 h-full w-3/4"></div>
+                                            </div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="h-24 rounded-lg border border-dashed border-gray-700 flex flex-col items-center justify-center text-gray-500 bg-gray-700/10">
+                                            <i class="fas fa-ban mb-2"></i>
+                                            <span class="text-xs">No Bowling Stats</span>
+                                        </div>
+                                    <% } %>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
