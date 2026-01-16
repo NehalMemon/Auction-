@@ -21,9 +21,6 @@ playerController.handleRegister = async (req, res) => {
 
       const { name, email, phoneNumber,playingStyle, category,battingOrder,bowlingType  } = req.validatedData;
 
-      // console.log(req.validatedData);
-      console.log("hello")
-      
 
       const existingPlayer = await Player.findOne({ where: { email } });
 
