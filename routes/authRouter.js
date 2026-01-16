@@ -7,6 +7,7 @@ import validator from '../middlewares/formValidator.js';
 import { requireAdminAuth } from "../middlewares/authMiddleware.js";
 import csrfProtection from '../middlewares/csrfProtection.js';
 import blockInProduction from '../middlewares/productionBlock.js';
+import upload from '../middlewares/uploadMiddleware.js';
 
 const router = Router();
 
@@ -58,7 +59,7 @@ router.post('/owner/signin', ownerController.handleSignin);
 
 // 1. PLAYER REGISTER
 router.get('/player/register',requireAdminAuth, playerController.renderRegister);
-router.post('/player/register', requireAdminAuth, validator(playerRegisterSchema), playerController.handleRegister);
+router.post('/player/register', requireAdminAuth, upload.single('playerImage'), validator(playerRegisterSchema), playerController.handleRegister);
 
 
 export default router;
