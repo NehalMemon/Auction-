@@ -65,37 +65,36 @@ export const requireOwnerAuth = async (req, res, next) => {
 export const requireAdminOrOwner = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
 
-    if (!accessToken) {
-        // If no token, we don't know who they are, send to generic login or admin login
-        return res.redirect('/auth/owner/signin');
+    // 1️⃣ If access token exists, verify it
+    if (accessToken) {
+        try {
+            const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+
+            // A. Check if Admin
+            const admin = await Admin.findByPk(decoded.id);
+            if (admin) {
+                req.user = admin;
+                req.userType = 'admin'; // Helper flag for your views
+                return next();
+            }
+
+            // B. Check if Owner
+            const owner = await Owner.findByPk(decoded.id);
+            if (owner) {
+                req.user = owner;
+                req.userType = 'owner';
+                return next();
+            }
+
+            // C. Token is valid, but ID not found in either table
+            return res.redirect('/auth/admin/signin');
+
+        } catch (err) {
+            console.log("Hybrid auth token expired. Attempting refresh...");
+            return authController.refreshToken(req, res, req.originalUrl);
+        }
     }
 
-    try {
-        const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-
-        // 1. Check if Admin
-        const admin = await Admin.findByPk(decoded.id);
-        if (admin) {
-            req.user = admin;
-            req.userType = 'admin'; // Useful helper flag
-            return next();
-        }
-
-        // 2. Check if Owner
-        const owner = await Owner.findByPk(decoded.id);
-        if (owner) {
-            req.user = owner; // Or req.user = owner
-            req.userType = 'owner';
-            return next();
-        }
-
-        // 3. Valid token, but user not found in either table
-        return res.redirect('/auth/admin/signin');
-
-    } catch (err) {
-        console.log("Token invalid in hybrid check");
-        // For simplicity, just redirect to login on error
-        return res.redirect('/auth/admin/signin');
-    }
+    return authController.refreshToken(req, res, req.originalUrl);
 };
 

@@ -3,8 +3,9 @@ import Player from '../models/playerModel.js'
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
+import { encodeId, decodeId } from '../utils/idHasher.js';
 
-const playerController= {}
+const playerController = {}
 
 
 playerController.renderRegister = async (req, res) => {
@@ -21,58 +22,77 @@ playerController.handleRegister = async (req, res) => {
    try {
       const { name, email, phoneNumber } = req.validatedData;
       console.log(req.validationData);
-    
-      let { playingStyle, category, battingOrder, bowlingType, auctionCategory } = req.body; 
+
+      let { playingStyle, category, battingOrder, bowlingType, auctionCategory } = req.body;
       console.log(req.body);
       console.log(req.file);
-     
+
       if (bowlingType === "") {
-          bowlingType = null;
+         bowlingType = null;
       }
 
       const imageUrl = req.file ? req.file.path : null;
 
-      await Player.create({ 
-          name, 
-          email, 
-          phoneNumber, 
-          playingStyle, 
-          category, 
-          battingOrder, 
-          bowlingType,
-          auctionCategory,
-          playerImage: imageUrl 
+      await Player.create({
+         name,
+         email,
+         phoneNumber,
+         playingStyle,
+         category,
+         battingOrder,
+         bowlingType,
+         auctionCategory,
+         playerImage: imageUrl
       });
 
       req.flash('success', 'Player registered successfully.');
       return res.redirect('/admin/dashboard');
 
    } catch (error) {
-    
+
    }
 }
 
 playerController.renderAllPlayers = async (req, res) => {
    try {
-      const players = await Player.findAll();  
-      res.render('players', { title: 'All Players', players });
+      const players = await Player.findAll();
+      const securePlayers = players.map(player => {
+         const p = player.get({ plain: true });
+         p.hashedId = encodeId(p.id);
+         return p
+      })
+      res.render('players', { title: 'All Players', players:securePlayers });
    } catch (error) {
       console.error("Error fetching owners:", error);
       res.status(500).json({ message: "Internal server error" });
-   }  
+   }
 }
 
 
 playerController.renderPlayerProfile = async (req, res) => {
    try {
-      const playerId = req.params.id;
-      const player = await Player.findByPk(playerId);  
+      const Id = req.params.id;
+      console.log(Id)
+      const playerId = decodeId(Id);
+      console.log(playerId)
+      if (!playerId) {
+         return res.status(400).render('404', { message: "invalid id" })
+      }
+      const player = await Player.findByPk(Id);
+      if (!player) {
+         return res.status(404).render('404', { message: "Player not found" });
+      }
+
+      const playerData = player.get({ plain: true });
+      playerData.hashedId = id;
+
+      res.render('playerProfile', { player: playerData });
+
       
-      res.render('playerProfile', { title: 'Player Profile', player });
    } catch (error) {
       console.error("Error fetching owners:", error);
       res.status(500).json({ message: "Internal server error" });
-   }  
+   }
 }
 
 export default playerController;
