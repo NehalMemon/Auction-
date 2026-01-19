@@ -33,7 +33,6 @@ teamModel.init({
         type: DataTypes.STRING,
         allowNull: false,
     },
-   
     ownerId: {
         type: DataTypes.INTEGER,
         allowNull: false,

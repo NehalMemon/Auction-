@@ -124,14 +124,15 @@
                                             </td>
 
 
-                                            <td class="px-6 py-4 whitespace-nowrap">
+                                            <td class="px-6 py-4 whitespace-nowrap flex justify-center items-center">
                                                 <% 
-                                                    let tierColor = 'text-gray-400 border-gray-600 bg-gray-800'; 
-                                                    if(player.auctionCategory === 'Platinum') tierColor = 'text-gray-900 bg-slate-200 border-slate-300 font-bold'; 
-                                                    if(player.auctionCategory === 'Diamond') tierColor = 'text-purple-300 bg-purple-900/40 border-purple-700';
-                                                    if(player.auctionCategory === 'Gold') tierColor = 'text-yellow-400 bg-yellow-900/30 border-yellow-700';
+                                                    let tierColor = 'text-slate-300 border-white/40 bg-slate-600/60 px-6 py-1'; 
+                                                    if(player.auctionCategory === 'Platinum') tierColor = 'text-blue-400 bg-blue-900/40 border-blue-700 font-bold px-3 py-1'; 
+                                                    if(player.auctionCategory === 'Diamond') tierColor = 'text-purple-400 bg-purple-900/40 border-purple-700 px-3 py-1';
+                                                    if(player.auctionCategory === 'Gold') tierColor = 'text-yellow-400 bg-yellow-900/30 border-yellow-700 px-6 py-1';
                                                 %>
-                                                <span class="px-3 py-1 text-xs rounded-full border <%= tierColor %>">
+
+                                                <span class="text-xs rounded-full border <%= tierColor %>">
                                                     <%= player.auctionCategory %>
                                                 </span>
                                             </td>
