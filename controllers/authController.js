@@ -87,8 +87,7 @@ authController.handleSignin = async (req, res) => {
       // console.log("Password matched");
 
       const accessToken = generateAccessToken(admin);
-      // console.log("Access token generated");
-      // console.log(accessToken.slice(0,10)+"...");
+     
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: admin.id } });
       if (oldRefreshToken) {
          await RefreshToken.destroy({ where: { userId: admin.id } });

@@ -25,11 +25,11 @@
                 
               <div class="flex gap-3">
     
-    <a href="/players/profile/edit/<%= player.id %>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md flex items-center gap-2">
+    <a href="/player/profile/edit/<%= player.hashedId %>" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md flex items-center gap-2">
         <i class="fas fa-edit"></i> Edit
     </a>
 
-    <form action="/players/profile/delete/<%= player.id %>" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+    <form action="/player/profile/delete/<%= player.hashedId %>" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
         
         <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer">
             <i class="fas fa-trash"></i> Delete

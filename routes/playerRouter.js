@@ -6,4 +6,6 @@ const router = Router();
 
 router.get('/playerslist', requireAdminOrOwner, playerController.renderAllPlayers);
 router.get('/profile/:id', requireAdminOrOwner, playerController.renderPlayerProfile);
+router.get('/profile/delete/:id', requireAdminOrOwner, playerController.renderPlayerProfile);
+router.get('/profile/edit/:id', requireAdminOrOwner, playerController.renderPlayerProfile);
 export default router;

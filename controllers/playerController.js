@@ -59,11 +59,12 @@ playerController.renderAllPlayers = async (req, res) => {
       const securePlayers = players.map(player => {
          const p = player.get({ plain: true });
          p.hashedId = encodeId(p.id);
+         // console.log(p.hashedId)
          return p
       })
-      res.render('players', { title: 'All Players', players:securePlayers });
+      res.render('players', { title: 'All Players', players: securePlayers });
    } catch (error) {
-      console.error("Error fetching owners:", error);
+      console.error("Error fetching players:", error);
       res.status(500).json({ message: "Internal server error" });
    }
 }
@@ -74,23 +75,24 @@ playerController.renderPlayerProfile = async (req, res) => {
       const Id = req.params.id;
       console.log(Id)
       const playerId = decodeId(Id);
-      console.log(playerId)
+      // console.log(playerId)
       if (!playerId) {
-         return res.status(400).render('404', { message: "invalid id" })
+         return res.status(400).json( { message: "invalid id" })
       }
-      const player = await Player.findByPk(Id);
+      const player = await Player.findByPk(playerId);
       if (!player) {
-         return res.status(404).render('404', { message: "Player not found" });
+         return res.status(404).json( { message: "Player not found" });
       }
 
       const playerData = player.get({ plain: true });
-      playerData.hashedId = id;
+      playerData.id = playerId;
+      playerData.hashedId = playerId;
 
       res.render('playerProfile', { player: playerData });
 
-      
+
    } catch (error) {
-      console.error("Error fetching owners:", error);
+      console.error("Error fetching players:", error);
       res.status(500).json({ message: "Internal server error" });
    }
 }
