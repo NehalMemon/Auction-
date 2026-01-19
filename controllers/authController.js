@@ -192,12 +192,8 @@ authController.refreshToken = async (req, res, originalUrl) => {
          req.flash('error', 'Invalid refresh token. Please login again.');
          return res.status(403).redirect('/auth/admin/signin');
       }
-      console.log("storedToken.expiryDate :" +  storedToken.expiryDate)
-
-      console.log(new Date()) 
 
       if (storedToken.expiryDate < new Date()) {
-        
          req.flash('error', 'Refresh token expired. Please login again.');
          return res.status(403).redirect('/auth/admin/signin');
       }
