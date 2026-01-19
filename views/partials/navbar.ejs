@@ -39,33 +39,52 @@
             <nav class="flex-1 px-4 py-6 space-y-2">
                 <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Main</p>
                 
-                <a href="/admin/dashboard" class="flex items-center px-4 py-3 bg-gray-700 text-white rounded-lg transition-colors shadow-sm">
+                <!-- <a href="/admin/dashboard" class="flex items-center px-4 py-3 bg-gray-700 text-white rounded-lg transition-colors shadow-sm"> -->
+                <a href="/admin/dashboard" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white  rounded-lg transition-colors shadow-sm
+                       <%= currentPath === '/admin/dashboard'
+                         ? 'bg-gray-700 text-white'
+                         : '' %>">
                     <i class="fas fa-th-large w-6"></i>
                     <span class="font-medium">Dashboard</span>
                 </a>
 
-                <a href="/owner/ownerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <a href="/owner/ownerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors   
+                <%= currentPath === '/owner/ownerslist'
+                         ? 'bg-gray-700 text-white'
+                         : '' %>">
                     <i class="fas fa-users w-6"></i>
                     <span class="font-medium">Owners</span>
                 </a>
 
-                <a href="/player/playerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <a href="/player/playerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
+                <%= currentPath === '/player/playerslist'
+                         ? 'bg-gray-700 text-white'
+                         : '' %>">
                     <i class="fas fa-running w-6"></i>
                     <span class="font-medium">Players</span>
                 </a>
-                <a href="/player/teamslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <a href="/player/teamslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
+                <%= currentPath === '/player/teamslist'
+                         ? 'bg-gray-700 text-white'
+                         : '' %>">
                     <i class="fas fa-running w-6"></i>
                     <span class="font-medium">Teams</span>
                 </a>
 
                 <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-8 mb-2">System</p>
 
-                <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
+                <%= currentPath === '#'
+                         ? 'bg-gray-700 text-white'
+                         : '' %>">
                     <i class="fas fa-gavel w-6"></i>
                     <span class="font-medium">Live Auction</span>
                 </a>
 
-                <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
+                <%= currentPath === '#'
+                         ? 'bg-gray-700 text-white'
+                         : '' %>">
                     <i class="fas fa-cog w-6"></i>
                     <span class="font-medium">Settings</span>
                 </a>

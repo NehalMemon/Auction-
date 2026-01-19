@@ -7,6 +7,7 @@ import "./config/config.js";
 import session from 'express-session';
 import flash from 'connect-flash';
 import cookieParser from "cookie-parser";
+import currentPath from "./middlewares/currentPath.js" // suraish add
 
 
 
@@ -66,7 +67,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 
-
+app.use(currentPath); // suraish add this middleware.
 app.use("/", indexroute);
 
 
