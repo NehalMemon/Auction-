@@ -75,9 +75,20 @@ playerModel.init({
         allowNull: true,
         defaultValue: 0,
     },
+    basePrice: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 0,
+    },
     auctionCategory: {
         type: DataTypes.ENUM,
         values: ['Platinum', 'Diamond', 'Gold', 'Silver'],
+        defaultValue: 'Silver',
+        allowNull: false,
+    },
+    campus: {
+        type: DataTypes.ENUM,
+        values: ['Bahadurabad', 'Clifton', 'Idara-e-noor', 'Phosphorus'],
         defaultValue: 'Silver',
         allowNull: false,
     },

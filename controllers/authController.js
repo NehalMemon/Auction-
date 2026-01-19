@@ -86,13 +86,13 @@ authController.handleSignin = async (req, res) => {
       }
       // console.log("Password matched");
 
-      const accessToken = generateAccessToken(admin);
+      const accessToken = generateAccessToken(admin,"admin");
      
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: admin.id } });
       if (oldRefreshToken) {
          await RefreshToken.destroy({ where: { userId: admin.id } });
       }
-      const refreshToken = generateRefreshToken(admin);
+      const refreshToken = generateRefreshToken(admin,"admin");
       const hashedToken = tokenHash(refreshToken);
       const expiryDate = new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_LIFE));
 

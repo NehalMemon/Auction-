@@ -64,37 +64,67 @@ export const requireOwnerAuth = async (req, res, next) => {
 
 export const requireAdminOrOwner = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
 
-    if (!accessToken) {
-        // If no token, we don't know who they are, send to generic login or admin login
-        return res.redirect('/auth/owner/signin');
+ 
+    if (accessToken) {
+        try {
+            const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+
+      
+            if (decoded.role === 'admin') {
+                const admin = await Admin.findByPk(decoded.id);
+                if (admin) {
+                    req.user = admin;
+                    req.userType = 'admin';
+                    return next();
+                }
+            } else if (decoded.role === 'owner') {
+                const owner = await Owner.findByPk(decoded.id);
+                if (owner) {
+                    req.user = owner;
+                    req.userType = 'owner';
+                    return next();
+                }
+            }
+            
+       
+            return res.redirect('/auth/admin/signin');
+
+        } catch (err) {
+      
+            console.log("Hybrid Auth: Access token expired, checking refresh token...");
+        }
+    }
+
+
+    if (!refreshToken) {
+        
+        return res.redirect('/auth/admin/signin');
     }
 
     try {
-        const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+       
+        const decodedPeek = jwt.decode(refreshToken);
 
-        // 1. Check if Admin
-        const admin = await Admin.findByPk(decoded.id);
-        if (admin) {
-            req.user = admin;
-            req.userType = 'admin'; // Useful helper flag
-            return next();
+        if (!decodedPeek || !decodedPeek.role) {
+          
+            return res.redirect('/auth/admin/signin');
         }
 
-        // 2. Check if Owner
-        const owner = await Owner.findByPk(decoded.id);
-        if (owner) {
-            req.user = owner; // Or req.user = owner
-            req.userType = 'owner';
-            return next();
+      
+        if (decodedPeek.role === 'admin') {
+            return authController.refreshToken(req, res, req.originalUrl);
+        } 
+        else if (decodedPeek.role === 'owner') {
+            return ownerController.refreshToken(req, res, req.originalUrl);
+        } 
+        else {
+            return res.redirect('/auth/admin/signin');
         }
 
-        // 3. Valid token, but user not found in either table
-        return res.redirect('/auth/admin/signin');
-
-    } catch (err) {
-        console.log("Token invalid in hybrid check");
-        // For simplicity, just redirect to login on error
+    } catch (error) {
+        console.error("Hybrid Auth Error:", error);
         return res.redirect('/auth/admin/signin');
     }
 };

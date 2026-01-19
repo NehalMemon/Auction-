@@ -4,7 +4,7 @@ import ownerController from '../controllers/ownerController.js';
 import playerController from '../controllers/playerController.js';
 import {registerSchema, loginSchema, playerRegisterSchema} from '../validators/authValidation.js'
 import validator from '../middlewares/formValidator.js';
-import { requireAdminAuth } from "../middlewares/authMiddleware.js";
+import { requireAdminAuth, requireOwnerAuth} from "../middlewares/authMiddleware.js";
 import csrfProtection from '../middlewares/csrfProtection.js';
 import blockInProduction from '../middlewares/productionBlock.js';
 import upload from '../middlewares/uploadMiddleware.js';
@@ -36,12 +36,12 @@ router.post('/admin/reset-password', authController.handleResetPassword);
 
 
 // 1. OWNER REGISTER
-router.get('/owner/register',requireAdminAuth, ownerController.renderRegister);
+router.get('/owner/register', requireAdminAuth, ownerController.renderRegister);
 router.post('/owner/register', requireAdminAuth, validator(registerSchema), ownerController.handleRegister);
 
 // 2. OWNER SIGN IN
-router.get('/owner/signin', ownerController.renderSignin);
-router.post('/owner/signin', ownerController.handleSignin);
+router.get('/owner/signin', requireOwnerAuth, ownerController.renderSignin);
+router.post('/owner/signin', requireOwnerAuth, validator(loginSchema, 'ownerSignin'), ownerController.handleSignin);
 
 // // 3. OWNER SIGN OUT 
 // router.post('/owner/signout', authController.handleSignout);

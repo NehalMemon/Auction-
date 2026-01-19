@@ -2,6 +2,7 @@ import Admin from '../models/adminModel.js'
 // import Owner from '../models/ownerModel.js'
 import bcrypt from 'bcrypt';
 import Owner from '../models/ownerModel.js'
+import jwt from 'jsonwebtoken'
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
@@ -84,14 +85,14 @@ ownerController.handleSignin = async (req, res) => {
       }
       // console.log("Password matched");
 
-      const accessToken = generateAccessToken(owner);
+      const accessToken = generateAccessToken(owner, "owner");
       // console.log("Access token generated");
       // console.log(accessToken.slice(0,10)+"...");
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: owner.id } });
       if (oldRefreshToken) {
          await RefreshToken.destroy({where:{userId: owner.id}});
       }
-      const refreshToken = generateRefreshToken(owner);
+      const refreshToken = generateRefreshToken(owner, "owner");
       const hashedToken = tokenHash(refreshToken);
       const expiryDate = new Date().getDate() + parseInt(process.env.REFRESH_TOKEN_LIFE);
 
