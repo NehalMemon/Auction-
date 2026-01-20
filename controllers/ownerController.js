@@ -19,41 +19,47 @@ ownerController.renderRegister = async (req, res) => {
    }
 }
 ownerController.handleRegister = async (req, res) => {
-   try {
+    try {
+     
+        const { name, email, password } = req.validatedData;
 
-      const { name, email, password } = req.validatedData;
+        
+        const imageURL = req.file ? req.file.path : null; 
 
+      //   console.log("Data:", req.validatedData);
+      //   console.log("File:", req.file);
 
-      const existingOwner = await Owner.findOne({ where: { email } });
+       
+        const existingOwner = await Owner.findOne({ where: { email } });
+        if (existingOwner) {
+            req.flash('error', 'Email already exists!');
+            return res.status(400).render('createOwner', {
+                title: 'Create New Owner',
+                error_msg: 'Email already exists!',
+                oldInput: { name, email },
+                csrfToken: req.csrfToken ? req.csrfToken() : '' 
+            });
+        }
 
-      if (existingOwner) {
-         return res.render('createOwner', {
-            title: 'Register New Owner',
-            error_msg: 'Email already exists!',
-            oldInput: {
-               name: req.body.name,
-               email: req.body.email
-            }
-         });
-      }
+     
+        const hash = await bcrypt.hash(password, 10);
+        
+        await Owner.create({
+            name,
+            email,
+            password: hash,
+            image: imageURL 
+        });
 
+       
+        req.flash('success', 'Owner registered successfully!');
+        return res.redirect('/admin/dashboard'); 
 
-      const hash = await bcrypt.hash(password, 10);
-      await Owner.create({ name, email, password: hash });
-
-
-      req.flash('success', 'Registration successful! Please log in.');
-      return res.redirect('/auth/admin/dashboard');
-   } catch (error) {
-      console.error("Error creating owner:", error);
-
-
-      return res.render('createOwner', {
-         title: 'Register New Owner',
-         error_msg: 'Something went wrong. Please try again.',
-         oldInput: req.body
-      });
-   }
+    } catch (error) {
+        console.error("Error creating owner:", error);
+        req.flash('error', 'Registration failed. Please try again.');
+        return res.status(500).redirect('/auth/owner/register');
+    }
 }
 
 ownerController.renderSignin = (req, res) => {
@@ -148,6 +154,34 @@ ownerController.renderAllOwners = async (req, res) => {
       console.error("Error fetching owners:", error);
       res.status(500).json({ message: "Internal server error" });
    }  
+}
+
+ownerController.renderOwnerProfile = async (req, res) => {
+   try {
+
+      const Id = req.params.id;
+
+      const ownerId = decodeId(Id);
+      // console.log(playerId)
+      if (!ownerId) {
+         return res.status(400).json({ message: "invalid id" })
+      }
+      const owner = await Owner.findByPk(ownerId);
+      if (!owner) {
+         return res.status(404).json({ message: "Owner not found" });
+      }
+
+      const ownerData = owner.get({ plain: true });
+      ownerData.id = ownerId;
+      ownerData.hashedId = Id;
+
+      res.render('ownerProfile', { owner: playerData });
+
+
+   } catch (error) {
+      console.error("Error fetching powner:", error);
+      res.status(500).json({ message: "Internal server error" });
+   }
 }
 
 ownerController.refreshToken = async (req, res, originalUrl) => {

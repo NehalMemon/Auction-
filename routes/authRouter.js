@@ -38,7 +38,7 @@ router.post('/admin/reset-password', authController.handleResetPassword);
 
 // 1. OWNER REGISTER
 router.get('/owner/register', requireAdminAuth, ownerController.renderRegister);
-router.post('/owner/register', requireAdminAuth, validator(registerSchema), ownerController.handleRegister);
+router.post('/owner/register', requireAdminAuth, upload.single('image'), validator(registerSchema), ownerController.handleRegister);
 
 // 2. OWNER SIGN IN
 router.get('/owner/signin', requireOwnerAuth, ownerController.renderSignin);

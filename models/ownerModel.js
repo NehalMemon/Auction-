@@ -6,7 +6,7 @@ class ownerModel extends Model {
         ownerModel.hasOne(models.Team, {
             foreignKey: 'ownerId',
             as: 'team',
-            onDelete: 'CASCADE', 
+            onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         });
     }
@@ -27,6 +27,11 @@ ownerModel.init({
         allowNull: false,
         unique: true,
     },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+
     isOwner: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
