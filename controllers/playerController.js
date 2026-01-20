@@ -42,7 +42,9 @@ playerController.handleRegister = async (req, res) => {
          battingOrder,
          bowlingType,
          auctionCategory,
-         playerImage: imageUrl
+         playerImage: imageUrl,
+         basePrice,
+         campus
       });
 
       req.flash('success', 'Player registered successfully.');
@@ -75,7 +77,7 @@ playerController.renderPlayerProfile = async (req, res) => {
    try {
 
       const Id = req.params.id;
-      console.log(Id)
+
       const playerId = decodeId(Id);
       // console.log(playerId)
       if (!playerId) {
@@ -88,7 +90,7 @@ playerController.renderPlayerProfile = async (req, res) => {
 
       const playerData = player.get({ plain: true });
       playerData.id = playerId;
-      playerData.hashedId = playerId;
+      playerData.hashedId = Id;
 
       res.render('playerProfile', { player: playerData });
 
@@ -102,9 +104,9 @@ playerController.renderPlayerProfile = async (req, res) => {
 playerController.renderEdit = async (req, res) => {
    try {
       const Id = req.params.id;
-      console.log(Id)
+
       const playerId = decodeId(Id);
-      
+
       if (!playerId) {
          return res.status(400).json({ message: "invalid id" })
       }
@@ -115,8 +117,8 @@ playerController.renderEdit = async (req, res) => {
 
       const playerData = player.get({ plain: true });
       playerData.id = playerId;
-      playerData.hashedId = playerId;
-      res.render('createPlayer',{ player: playerData }, { title: 'edit  Player' });
+      playerData.hashedId = Id;
+      res.render('editPlayer', { player: playerData, title: 'edit  Player' });
    }
    catch (error) {
       console.error("Error in GET /edit:", error);
@@ -126,6 +128,21 @@ playerController.renderEdit = async (req, res) => {
 
 playerController.handleEdit = async (req, res) => {
    try {
+      const Id = req.params.id;
+      const playerId = decodeId(Id);
+
+      if (!playerId) {
+         req.flash('error', 'Invalid ID');
+         return res.redirect('/admin/players');
+      }
+
+      // 1. Find the Player Instance
+      const player = await Player.findByPk(playerId);
+      if (!player) {
+         req.flash('error', 'Player not found');
+         return res.redirect('/admin/players');
+      }
+
       const { name, email, phoneNumber } = req.validatedData;
       console.log(req.validationData);
 
@@ -137,25 +154,31 @@ playerController.handleEdit = async (req, res) => {
          bowlingType = null;
       }
 
-      const imageUrl = req.file ? req.file.path : null;
 
-      await Player.create({
+      const imageUrl = req.file ? req.file.path : player.playerImage;
+
+
+      await player.update({
          name,
          email,
          phoneNumber,
+         campus,
          playingStyle,
          category,
          battingOrder,
          bowlingType,
          auctionCategory,
+         basePrice,
          playerImage: imageUrl
       });
 
-      req.flash('success', 'Player registered successfully.');
+      req.flash('success', 'Player updated successfully!');
       return res.redirect('/admin/dashboard');
 
    } catch (error) {
-
+      console.error("Error updating player:", error);
+      req.flash('error', 'Failed to update player');
+      return res.redirect(`/admin/players/edit/${req.params.id}`);
    }
 }
 
