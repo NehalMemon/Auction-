@@ -4,7 +4,7 @@ const { sequelizeTZ, DataTypes, Model } = dbConfig;
 class teamModel extends Model {
 
     static associate(models) {
-        // Use 'models.Owner' (Matches index.js key)
+        
         teamModel.belongsTo(models.Owner, {
             foreignKey: 'ownerId',
             as: 'owner',
@@ -12,8 +12,6 @@ class teamModel extends Model {
             onUpdate: 'CASCADE'
         });
 
-        // Use 'models.Player' (Matches index.js key)
-        // Changed alias to PLURAL 'players'
         teamModel.hasMany(models.Player, {
             foreignKey: 'teamId',
             as: 'players',

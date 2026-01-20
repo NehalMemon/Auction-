@@ -1,7 +1,6 @@
-import Admin from '../models/adminModel.js'
-// import Owner from '../models/ownerModel.js'
+import db from '../models/index.js';
+const { Owner,Team } = db;
 import bcrypt from 'bcrypt';
-import Owner from '../models/ownerModel.js'
 import jwt from 'jsonwebtoken'
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';
@@ -94,7 +93,7 @@ ownerController.handleSignin = async (req, res) => {
       }
       const refreshToken = generateRefreshToken(owner, "owner");
       const hashedToken = tokenHash(refreshToken);
-      const expiryDate = new Date().getDate() + parseInt(process.env.REFRESH_TOKEN_LIFE);
+      const expiryDate = new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_LIFE))
 
       await RefreshToken.create({
          token: hashedToken,
@@ -138,7 +137,12 @@ ownerController.renderDashboard = async (req, res) => {
 
 ownerController.renderAllOwners = async (req, res) => {
    try {
-      const owners = await Owner.findAll();  
+      const owners = await Owner.findAll({
+         include:[{
+            model:Team,
+            as:"team"
+         }]
+      });  
       res.render('owners', { title: 'All Owners', owners });
    } catch (error) {
       console.error("Error fetching owners:", error);

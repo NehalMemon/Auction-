@@ -5,7 +5,7 @@ class ownerModel extends Model {
     static associate(models) {
         ownerModel.hasOne(models.Team, {
             foreignKey: 'ownerId',
-            as: 'owner',
+            as: 'team',
             onDelete: 'CASCADE', 
             onUpdate: 'CASCADE'
         });

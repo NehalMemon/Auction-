@@ -17,3 +17,7 @@ export const playerRegisterSchema = z.object({
     phoneNumber:z.string().regex(/^0[1-9]\d{1,10}$/, 'Please enter a valid phone number').optional(),
 })
 
+export const teamRegisterSchema = z.object({
+    Name:z.string().min(3,'Name must be at least 3 characters long'),
+})
+

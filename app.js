@@ -7,7 +7,11 @@ import "./config/config.js";
 import session from 'express-session';
 import flash from 'connect-flash';
 import cookieParser from "cookie-parser";
-import currentPath from "./middlewares/currentPath.js" // suraish add
+import currentPath from "./middlewares/currentPath.js" 
+import db from './models/index.js'; 
+
+// 2. Destructure the models you need
+const { Team, Owner } = db;
 
 
 
@@ -81,6 +85,34 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+
+// (async () => {
+//     try {
+//         const team = await Team.findOne({
+//             where: { id: 1 },
+//             include: [{ model: Owner,
+//               as: 'owner'
+//              }] 
+//         });
+
+//         if (team) {
+        
+//           console.log(team.owner.toJSON());
+
+
+//             if (team.owner) {
+//                 console.log("Owner Name:", team.owner.name);
+//                 console.log("Owner Email:", team.owner.email);
+//             } else {
+//                 console.log("This team has no owner assigned.");
+//             }
+//         } else {
+//             console.log("Team not found!");
+//         }
+//     } catch (error) {
+//         console.error("Error:", error);
+//     }
+// })();
 
 
 
