@@ -39,10 +39,18 @@
                         <i class="fas fa-edit"></i> Edit
                     </a>
 
-                    <form action="/player/profile/delete/<%= player.hashedId %>" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
-                        <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
+                    <form action="/player/profile/delete/<%= player.hashedId %>" method="POST">
+                        <button type="button"
+                           class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                           onclick="document.getElementById('deleteModal-<%= player.hashedId %>').classList.remove('hidden')">
+                           <i class="fas fa-trash"></i> Delete
+                          </button>
+
+                          <%- include('partials/deleteModal', { 
+                                itemName: player.name, 
+                                deleteUrl: '/player/profile/delete/' + player.hashedId,
+                                modalId: 'deleteModal-' + player.hashedId 
+                          }) %>
                     </form>
                 </div>
             </header>
@@ -144,7 +152,7 @@
                                             </div>
                                         </div>
 
-                                        <details class="group bg-gray-900/50 rounded-xl overflow-hidden border border-gray-700/50 open:ring-1 open:ring-blue-500/30 transition-all">
+                                        <details open class="group bg-gray-900/50 rounded-xl overflow-hidden border border-gray-700/50 open:ring-1 open:ring-blue-500/30 transition-all">
                                             <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700/30 transition-colors select-none">
                                                 <span class="text-sm font-semibold text-gray-300 flex items-center gap-2">
                                                     <i class="fas fa-address-card text-blue-400"></i> Contact Details
@@ -174,35 +182,37 @@
                                     </div>
                                 </div>
 
-                                <div class="bg-gray-700/10 p-6 rounded-2xl border border-gray-700/30 flex flex-col justify-center">
-                                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <i class="fas fa-baseball-bat-ball text-yellow-500"></i> Batting
+                                <div class="bg-gray-700/10 p-6 rounded-2xl border border-gray-700/30 flex flex-col">
+                                    <h3 class="text-gray-400  text-md font-semibold uppercase tracking-widest mb-4 flex items-center gap-1">
+                                        <!-- <i class="fas fa-baseball-bat-ball text-yellow-500"></i> Batting -->
+                                       <img src="/images/cricket-icons/Bat.png" class="h-7" alt="Bat.png" srcset=""> Batting
+                                     
+                                      
                                     </h3>
-                                    <div class="space-y-4">
+                                    <!-- <div class="space-y-4"> -->
+                                        <div class="flex justify-between lg:flex-col md:flex-row gap-6">
+
                                         <div>
-                                            <div class="flex justify-between text-sm mb-1">
+                                            <div class="flex justify-between max-sm:gap-4 sm:gap-5  md:gap-10 items-center  mb-1">
                                                 <span class="text-gray-400">Style</span>
                                                 <span class="text-white font-bold capitalize"><%= player.playingStyle %></span>
                                             </div>
-                                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                                <div class="h-full bg-yellow-500 w-full"></div>
-                                            </div>
+                                          
                                         </div>
                                         <div>
-                                            <div class="flex justify-between text-sm mb-1">
+                                            <div class="flex justify-between  max-sm:gap-4 sm:gap-5  md:gap-10 items-center mb-1">
                                                 <span class="text-gray-400">Order</span>
                                                 <span class="text-white font-bold capitalize"><%= player.battingOrder || 'Flexible' %></span>
                                             </div>
-                                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                                <div class="h-full bg-yellow-500/60 w-3/4"></div>
-                                            </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="bg-gray-700/10 p-6 rounded-2xl border border-gray-700/30 flex flex-col justify-center">
-                                    <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <i class="fas fa-bowling-ball text-pink-500"></i> Bowling
+                                    <h3 class="text-gray-400 text-md font-semibold uppercase tracking-widest mb-4 flex items-center gap-1">
+                                        <!-- <i class="fas fa-bowling-ball text-pink-500"></i> Bowling -->
+                                        <img src="/images/cricket-icons/Ball.png" alt="Ball.png" class="h-5" srcset=""> Bowling
                                     </h3>
                                     
                                     <% if (player.bowlingType) { %>

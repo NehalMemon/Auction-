@@ -10,7 +10,7 @@ const router = Router();
 router.get('/playerslist', requireAdminOrOwner, playerController.renderAllPlayers);
 router.get('/profile/:id', requireAdminOrOwner, playerController.renderPlayerProfile);
 // router.get('/profile/delete/:id', requireAdminOrOwner, playerController.renderDelete);
-// router.post('/profile/delete/:id', requireAdminOrOwner, playerController.handleDelete);
+router.post('/profile/delete/:id', requireAdminOrOwner, playerController.handleDelete);
 router.get('/profile/edit/:id', requireAdminAuth, playerController.renderEdit);
 router.post('/profile/edit/:id', requireAdminAuth,upload.single('playerImage'), validator(playerRegisterSchema,"editPlayer"), playerController.handleEdit);
 export default router;

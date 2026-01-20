@@ -181,6 +181,30 @@ playerController.handleEdit = async (req, res) => {
       return res.redirect(`/admin/players/edit/${req.params.id}`);
    }
 }
+playerController.handleDelete = async (req, res) => {
+   try {
+      const Id = req.params.id;
+      const playerId = decodeId(Id);
+
+      if (!playerId) {
+         req.flash('error', 'Invalid ID');
+         return res.redirect('/player/playerslist');
+      }
+
+         // Delete player
+       await Player.destroy({
+            where: {Id : playerId}  // or hashedId if you store it in db
+        });
+
+      req.flash('success', 'Player deleted successfully!');
+      return res.redirect('/player/playerslist');
+
+   } catch (error) {
+      console.error("Error deleting player:", error);
+      req.flash('error', 'Failed to delete player');
+      return res.redirect(`/player/playerslist/${req.params.id}`);
+   }
+}
 
 
 export default playerController;
