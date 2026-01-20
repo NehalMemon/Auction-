@@ -2,7 +2,8 @@ import express,{Router} from 'express';
 import authController from '../controllers/authController.js';
 import ownerController from '../controllers/ownerController.js';
 import playerController from '../controllers/playerController.js';
-import {registerSchema, loginSchema, playerRegisterSchema} from '../validators/authValidation.js'
+import teamController from '../controllers/teamController.js';
+import {registerSchema, loginSchema, playerRegisterSchema, teamRegisterSchema} from '../validators/authValidation.js'
 import validator from '../middlewares/formValidator.js';
 import { requireAdminAuth, requireOwnerAuth} from "../middlewares/authMiddleware.js";
 import csrfProtection from '../middlewares/csrfProtection.js';
@@ -61,5 +62,10 @@ router.post('/owner/signin', requireOwnerAuth, validator(loginSchema, 'ownerSign
 router.get('/player/register',requireAdminAuth, playerController.renderRegister);
 router.post('/player/register', requireAdminAuth, upload.single('playerImage'), validator(playerRegisterSchema), playerController.handleRegister);
 
+
+
+//1. TEAM REGISTER
+router.get('/team/register',requireAdminAuth, teamController.renderRegister);
+router.post('/team/register', requireAdminAuth, upload.single('teamLogo'), validator(teamRegisterSchema), teamController.handleRegister);
 
 export default router;

@@ -1,4 +1,5 @@
-import Admin from '../models/adminModel.js'
+import db from '../models/index.js';
+const { Admin } = db;
 import bcrypt from 'bcrypt';
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';

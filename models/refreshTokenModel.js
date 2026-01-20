@@ -3,7 +3,7 @@ const {sequelizeTZ,DataTypes, Model} = dbConfig;
 
 class refreshTokenModel extends Model{
     static associate(models){
-        refreshTokenModel.belongsTo(models.User,{
+        refreshTokenModel.belongsTo(models.Admin,{
             foreignKey:'UserId',
             as:'user',
             onDelete:'CASCADE',

@@ -1,5 +1,6 @@
+import db from '../models/index.js';
+const { Player } = db;
 import bcrypt from 'bcrypt';
-import Player from '../models/playerModel.js'
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
@@ -146,7 +147,7 @@ playerController.handleEdit = async (req, res) => {
       const { name, email, phoneNumber } = req.validatedData;
       console.log(req.validationData);
 
-      let { playingStyle, category, battingOrder, bowlingType, auctionCategory } = req.body;
+      let { playingStyle, category, battingOrder, bowlingType, auctionCategory, campus, basePrice } = req.body;
       console.log(req.body);
       console.log(req.file);
 

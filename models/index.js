@@ -5,6 +5,7 @@ import teamModel from './teamModel.js';
 import playerModel from './playerModel.js';
 import ownerModel from './ownerModel.js'; 
 import adminModel from './adminModel.js'; 
+import refreshTokenModel from './refreshTokenModel.js';
 
 const db = {};
 
@@ -13,6 +14,7 @@ db.Team = teamModel;
 db.Player = playerModel;
 db.Owner = ownerModel; 
 db.Admin = adminModel;
+db.RefreshToken = refreshTokenModel;
 
 // Initialize Associations
 Object.keys(db).forEach(modelName => {
