@@ -71,7 +71,7 @@ export const requireAdminOrOwner = async (req, res, next) => {
         try {
 
             const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-            console.log(decoded)
+            // console.log(decoded)
 
       
             if (decoded.role === 'admin') {

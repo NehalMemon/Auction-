@@ -179,7 +179,7 @@ playerController.handleEdit = async (req, res) => {
    } catch (error) {
       console.error("Error updating player:", error);
       req.flash('error', 'Failed to update player');
-      return res.redirect(`/admin/players/edit/${req.params.id}`);
+      return res.redirect(`/player/profile/edit/${req.params.id}`);
    }
 }
 playerController.handleDelete = async (req, res) => {

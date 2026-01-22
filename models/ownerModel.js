@@ -31,6 +31,10 @@ ownerModel.init({
         type: DataTypes.STRING,
         allowNull: true,
     },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 
     isOwner: {
         type: DataTypes.BOOLEAN,

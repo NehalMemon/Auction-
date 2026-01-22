@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import RefreshToken from '../models/refreshTokenModel.js';
 import tokenHash from '../utils/tokenHasher.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
+import { encodeId, decodeId } from '../utils/idHasher.js';
 
 const ownerController= {}
 
@@ -75,24 +76,24 @@ ownerController.handleSignin = async (req, res) => {
    try {
       const { email, password } = req.validatedData;
 
-      const owner = await Owner.findOne({ where: { email } });
+      const owner = await Owner.findOne({ where: { email },attributes: ['id', 'name', 'email', 'password'] });
 
       if (!owner) {
          req.flash('error', 'Invalid email or password.');
          return res.status(400).redirect('/auth/owner/signin');
       }
-      // console.log(owner.id)
+ 
       const validPassword = await bcrypt.compare(password, owner.password);
       if (!validPassword) {
-         // console.log("Password did not match");
+   
          req.flash('error', 'Invalid email or password.');
          return res.status(400).redirect('/auth/owner/signin');
       }
-      // console.log("Password matched");
+     ;
 
       const accessToken = generateAccessToken(owner, "owner");
-      // console.log("Access token generated");
-      // console.log(accessToken.slice(0,10)+"...");
+
+
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: owner.id } });
       if (oldRefreshToken) {
          await RefreshToken.destroy({where:{userId: owner.id}});
@@ -122,15 +123,16 @@ ownerController.handleSignin = async (req, res) => {
          maxAge: process.env.REFRESH_TOKEN_LIFE
       });
 
+      const hashedId = encodeId( owner.id)
 
       req.flash('success', 'Signed in successfully!');
-      return res.status(200).redirect('/admin/dashboard');
+      return res.status(200).redirect(`/owner/profile/${hashedId}`);
 
    }
    catch (error) {
       console.error("Error in POST /signin:", error);
       req.flash('error', 'An error occurred during sign in. Please try again.');
-      return res.status(500).redirect('/auth/admin/signin');
+      return res.status(500).redirect('/auth/owner/signin');
    }
 }
 
@@ -149,7 +151,13 @@ ownerController.renderAllOwners = async (req, res) => {
             as:"team"
          }]
       });  
-      res.render('owners', { title: 'All Owners', owners });
+      const secureOwners = owners.map(owner => {
+               const t = owner.get({ plain: true });
+               t.hashedId = encodeId(t.id);
+               // console.log(p.hashedId)
+               return t
+            })
+      res.render('owners', { title: 'All Owners', owners: secureOwners });
    } catch (error) {
       console.error("Error fetching owners:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -166,7 +174,47 @@ ownerController.renderOwnerProfile = async (req, res) => {
       if (!ownerId) {
          return res.status(400).json({ message: "invalid id" })
       }
-      const owner = await Owner.findByPk(ownerId);
+      const owner = await Owner.findByPk(ownerId,
+         { include:[{
+            model:Team,
+            as:"team"
+         }]}
+      );
+      if (!owner) {
+         return res.status(404).json({ message: "Owner not found" });
+      }
+
+      const teamId = encodeId(owner.team.id)
+
+      const ownerData = owner.get({ plain: true });
+      ownerData.id = ownerId;
+      ownerData.hashedId = Id;
+      ownerData.teamId = teamId;
+
+      res.render('ownerProfile', { owner: ownerData });
+
+
+   } catch (error) {
+      console.error("Error fetching powner:", error);
+      res.status(500).json({ message: "Internal server error" });
+   }
+}
+
+ownerController.renderEdit = async (req, res) => {
+   try {
+      const Id = req.params.id;
+
+      const ownerId = decodeId(Id);
+
+      if (!ownerId) {
+         return res.status(400).json({ message: "invalid id" })
+      }
+      const owner = await Owner.findByPk(ownerId,
+          { include:[{
+            model:Team,
+            as:"team"
+         }]}
+      );
       if (!owner) {
          return res.status(404).json({ message: "Owner not found" });
       }
@@ -174,13 +222,75 @@ ownerController.renderOwnerProfile = async (req, res) => {
       const ownerData = owner.get({ plain: true });
       ownerData.id = ownerId;
       ownerData.hashedId = Id;
+      res.render('editOwner', { owner: ownerData, title: 'edit  Owner' });
+   }
+   catch (error) {
+      console.error("Error in GET /edit:", error);
+      res.status(500).json({ message: "Internal server error" });
+   }
+}
+ownerController.handleEdit = async (req, res) => {
+   try {
+      const Id = req.params.id;
+      const ownerId = decodeId(Id);
 
-      res.render('ownerProfile', { owner: playerData });
+      if (!ownerId) {
+         req.flash('error', 'Invalid ID');
+         return res.redirect('/owner/ownerslist');
+      }
 
+   
+      const owner = await Owner.findByPk(ownerId);
+      if (!owner) {
+         req.flash('error', 'owner not found');
+         return res.redirect('/admin/owner');
+      }
+
+      const { name, email, password } = req.validatedData;
+   
+      const imageUrl = req.file ? req.file.path : owner.image;
+
+
+      await owner.update({
+         name,
+         email,
+         password,
+         image: imageUrl
+      });
+
+      req.flash('success', 'Owner updated successfully!');
+      return res.redirect('/admin/dashboard');
 
    } catch (error) {
-      console.error("Error fetching powner:", error);
-      res.status(500).json({ message: "Internal server error" });
+      console.error("Error updating owner:", error);
+      req.flash('error', 'Failed to update owner');
+      return res.redirect(`/owner/profile/edit/${req.params.id}`);
+   }
+}
+
+
+ownerController.handleDelete = async (req, res) => {
+   try {
+      const Id = req.params.id;
+      const playerId = decodeId(Id);
+
+      if (!playerId) {
+         req.flash('error', 'Invalid ID');
+         return res.redirect('/player/playerslist');
+      }
+
+         // Delete player
+       await Player.destroy({
+            where: {Id : playerId}  // or hashedId if you store it in db
+        });
+
+      req.flash('success', 'Player deleted successfully!');
+      return res.redirect('/player/playerslist');
+
+   } catch (error) {
+      console.error("Error deleting player:", error);
+      req.flash('error', 'Failed to delete player');
+      return res.redirect(`/player/playerslist/${req.params.id}`);
    }
 }
 

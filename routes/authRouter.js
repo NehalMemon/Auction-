@@ -41,8 +41,8 @@ router.get('/owner/register', requireAdminAuth, ownerController.renderRegister);
 router.post('/owner/register', requireAdminAuth, upload.single('image'), validator(registerSchema), ownerController.handleRegister);
 
 // 2. OWNER SIGN IN
-router.get('/owner/signin', requireOwnerAuth, ownerController.renderSignin);
-router.post('/owner/signin', requireOwnerAuth, validator(loginSchema, 'ownerSignin'), ownerController.handleSignin);
+router.get('/owner/signin', ownerController.renderSignin);
+router.post('/owner/signin', validator(loginSchema, 'ownerSignin'), ownerController.handleSignin);
 
 // // 3. OWNER SIGN OUT 
 // router.post('/owner/signout', authController.handleSignout);

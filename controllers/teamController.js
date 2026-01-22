@@ -89,30 +89,41 @@ teamController.renderAllTeams = async (req, res) => {
    }
 }
 
-teamController.renderPlayerProfile = async (req, res) => {
+teamController.renderTeamProfile = async (req, res) => {
    try {
 
       const Id = req.params.id;
 
-      const playerId = decodeId(Id);
+      const teamId = decodeId(Id);
       // console.log(playerId)
-      if (!playerId) {
+      if (!teamId) {
          return res.status(400).json({ message: "invalid id" })
       }
-      const player = await Player.findByPk(playerId);
-      if (!player) {
-         return res.status(404).json({ message: "Player not found" });
+      const team = await Team.findByPk(teamId,{
+         include:[{
+            model:Owner,
+            as:"owner"
+         }]
+      });
+      if (!team) {
+         return res.status(404).json({ message: "team not found" });
       }
+    
+      const ownerId = (encodeId(team.owner.id));
+     
 
-      const playerData = player.get({ plain: true });
-      playerData.id = playerId;
-      playerData.hashedId = Id;
+      const teamData = team.get({ plain: true });
+      teamData.id = teamId;
+      teamData.hashedId = Id;
+      teamData.ownerId = ownerId
 
-      res.render('playerProfile', { player: playerData });
+      // console.log(teamData)
+
+      res.render('teamProfile', { team: teamData });
 
 
    } catch (error) {
-      console.error("Error fetching players:", error);
+      console.error("Error fetching Teams:", error);
       res.status(500).json({ message: "Internal server error" });
    }
 }
@@ -120,23 +131,51 @@ teamController.renderPlayerProfile = async (req, res) => {
 teamController.renderEdit = async (req, res) => {
    try {
       const Id = req.params.id;
+      const teamId = decodeId(Id);
 
-      const playerId = decodeId(Id);
-
-      if (!playerId) {
-         return res.status(400).json({ message: "invalid id" })
-      }
-      const player = await Player.findByPk(playerId);
-      if (!player) {
-         return res.status(404).json({ message: "Player not found" });
+      if (!teamId) {
+         return res.status(400).json({ message: "invalid id" });
       }
 
-      const playerData = player.get({ plain: true });
-      playerData.id = playerId;
-      playerData.hashedId = Id;
-      res.render('editPlayer', { player: playerData, title: 'edit  Player' });
-   }
-   catch (error) {
+      const team = await Team.findByPk(teamId);
+      if (!team) {
+         return res.status(404).json({ message: "team not found" });
+      }
+
+      const teamData = team.get({ plain: true });
+      teamData.id = teamId;
+      teamData.hashedId = Id;
+      
+      // MATCHING KEY: Ensure Name (Capital N) exists for the template
+      teamData.Name = teamData.name; 
+
+      // Fetch all assigned owner IDs
+      const assignedTeams = await Team.findAll({
+         attributes: ['ownerId'],
+         where: {
+            ownerId: { [Op.ne]: null }
+         }
+      });
+
+      const assignedOwnerIds = assignedTeams.map(t => t.ownerId);
+
+      // Find owners NOT in the assigned list, BUT include the current team's owner
+      const availableOwners = await Owner.findAll({
+         where: {
+            [Op.or]: [
+               { id: { [Op.notIn]: assignedOwnerIds } },
+               { id: teamData.ownerId } // Explicitly include the current owner
+            ]
+         }
+      });
+
+      res.render('editTeam', { 
+         team: teamData, 
+         owners: availableOwners, 
+         title: 'Edit Team' 
+      });
+      
+   } catch (error) {
       console.error("Error in GET /edit:", error);
       res.status(500).json({ message: "Internal server error" });
    }
@@ -145,58 +184,66 @@ teamController.renderEdit = async (req, res) => {
 teamController.handleEdit = async (req, res) => {
    try {
       const Id = req.params.id;
+      const teamId = decodeId(Id);
+
+      if (!teamId) {
+         req.flash('error', 'Invalid ID');
+         return res.redirect('/team/teamlist');
+      }
+
+      // 1. Find the Player Instance
+      const team = await Team.findByPk(teamId);
+      if (!team) {
+         req.flash('error', 'team not found');
+         return res.redirect('/team/teamslist');
+      }
+
+      const { Name} = req.validatedData;
+
+     let { ownerId } = req.body;
+
+
+      const imageUrl = req.file ? req.file.path : team.teamLogo;
+
+
+      await team.update({
+         name:Name,
+         ownerId,
+         teamLogo: imageUrl
+      });
+
+      req.flash('success', 'Team updated successfully!');
+      return res.redirect('/admin/dashboard');
+
+   } catch (error) {
+      console.error("Error updating team:", error);
+      req.flash('error', 'Failed to update team');
+      return res.redirect(`/admin/team/edit/${req.params.id}`);
+   }
+}
+
+teamController.handleDelete = async (req, res) => {
+   try {
+      const Id = req.params.id;
       const playerId = decodeId(Id);
 
       if (!playerId) {
          req.flash('error', 'Invalid ID');
-         return res.redirect('/admin/players');
+         return res.redirect('/player/playerslist');
       }
 
-      // 1. Find the Player Instance
-      const player = await Player.findByPk(playerId);
-      if (!player) {
-         req.flash('error', 'Player not found');
-         return res.redirect('/admin/players');
-      }
+         // Delete player
+       await Player.destroy({
+            where: {Id : playerId}  // or hashedId if you store it in db
+        });
 
-      const { name, email, phoneNumber } = req.validatedData;
-      console.log(req.validationData);
-
-      let { playingStyle, category, battingOrder, bowlingType, auctionCategory, campus, basePrice } = req.body;
-      console.log(req.body);
-      console.log(req.file);
-
-      if (bowlingType === "") {
-         bowlingType = null;
-      }
-
-
-      const imageUrl = req.file ? req.file.path : player.playerImage;
-
-
-      await player.update({
-         name,
-         email,
-         phoneNumber,
-         campus,
-         playingStyle,
-         category,
-         battingOrder,
-         bowlingType,
-         auctionCategory,
-         basePrice,
-         playerImage: imageUrl
-      });
-
-      req.flash('success', 'Player updated successfully!');
-      return res.redirect('/admin/dashboard');
+      req.flash('success', 'Player deleted successfully!');
+      return res.redirect('/player/playerslist');
 
    } catch (error) {
-      console.error("Error updating player:", error);
-      req.flash('error', 'Failed to update player');
-      return res.redirect(`/admin/players/edit/${req.params.id}`);
+      console.error("Error deleting player:", error);
+      req.flash('error', 'Failed to delete player');
+      return res.redirect(`/player/playerslist/${req.params.id}`);
    }
 }
-
-
 export default teamController;

@@ -38,7 +38,7 @@
 
             <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-8">
                 <h2 class="text-xl font-semibold text-gray-200">Manage Teams</h2>
-                <a href="/admin/teams/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
+                <a href="/auth/team/register" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
                     <i class="fas fa-plus mr-2"></i> Create Team
                 </a>
             </header>
@@ -91,8 +91,12 @@
                                                 <% if (teamOwner) { %>
                                                     <div class="flex items-center gap-2">
                                                         <div class="h-6 w-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs border border-blue-500/30">
-                                                            <i class="fas fa-user-tie"></i>
-                                                        </div>
+                                                             <% if (teamOwner.image) { %>
+                                                             <img src="<%= teamOwner.image %>" class="h-full w-full rounded-full object-cover" alt="<%= teamOwner.image %>">
+                                                         <% } else { %>
+                                                            <%= teamOwner.name.charAt(0).toUpperCase() %>
+                                                        <% } %>
+                                                            </div>
                                                         <div>
                                                             <div class="text-sm text-gray-300 font-medium"><%= teamOwner.name %></div>
                                                         </div>
@@ -105,7 +109,7 @@
                                             </td>
 
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <a href="/admin/teams/<%= team.id %>" class="text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-xs transition-colors border border-gray-600 inline-block">
+                                                <a href="/team/profile/<%= team.hashedId %>" class="text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-xs transition-colors border border-gray-600 inline-block">
                                                     View Profile
                                                 </a>
                                             </td>
