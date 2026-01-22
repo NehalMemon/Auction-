@@ -22,16 +22,9 @@ playerController.handleRegister = async (req, res) => {
     const { name, email, phoneNumber } = req.validatedData;
     console.log(req.validationData);
 
-<<<<<<< HEAD
-    let { playingStyle, category, battingOrder, bowlingType, auctionCategory } =
-      req.body;
-    console.log(req.body);
-    console.log(req.file);
-=======
       let { playingStyle, category, battingOrder, bowlingType, auctionCategory,basePrice,campus } = req.body;
       console.log(req.body);
       console.log(req.file);
->>>>>>> main
 
     if (bowlingType === "") {
       bowlingType = null;
@@ -56,34 +49,6 @@ playerController.handleRegister = async (req, res) => {
     //     });
     //   }
 
-<<<<<<< HEAD
-    //   await existingPlayer.update({
-    //     email: `${existingPlayer.email}__deleted__${Date.now()}`,
-    //   });
-    // }
-    // suraish add finish ------------------------
-
-    await Player.create({
-      name,
-      email,
-      phoneNumber,
-      playingStyle,
-      category,
-      battingOrder,
-      bowlingType,
-      auctionCategory,
-      playerImage: imageUrl,
-      basePrice,
-      campus,
-    });
-
-    req.flash("success", "Player registered successfully.");
-    return res.redirect("/admin/dashboard");
-  } catch (error) {
-    console.log("Error ",error)
-  }
-};
-=======
    } catch (error) {
       console.error("Registration Error:", error);
       req.flash('error', 'Registration failed: ' + error.message);
@@ -91,7 +56,6 @@ playerController.handleRegister = async (req, res) => {
       return res.redirect('/auth/player/register');
    }
 }
->>>>>>> main
 
 playerController.renderAllPlayers = async (req, res) => {
   try {
