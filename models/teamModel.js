@@ -43,11 +43,22 @@ teamModel.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
+    },
+    // New Budget Fields for Phase 2
+    totalBudget: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+        defaultValue: 0,
+    },
+    remainingBudget: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+        defaultValue: 0,
     }
 },
     {
         sequelize: sequelizeTZ,
-        modelName: 'Team', // Capitalized
+        modelName: 'Team', 
         tableName: 'teams',
         timestamps: true,
         paranoid: true

@@ -24,7 +24,7 @@ playerController.handleRegister = async (req, res) => {
       const { name, email, phoneNumber } = req.validatedData;
       console.log(req.validationData);
 
-      let { playingStyle, category, battingOrder, bowlingType, auctionCategory } = req.body;
+      let { playingStyle, category, battingOrder, bowlingType, auctionCategory,basePrice,campus } = req.body;
       console.log(req.body);
       console.log(req.file);
 
@@ -52,7 +52,10 @@ playerController.handleRegister = async (req, res) => {
       return res.redirect('/admin/dashboard');
 
    } catch (error) {
-
+      console.error("Registration Error:", error);
+      req.flash('error', 'Registration failed: ' + error.message);
+     
+      return res.redirect('/auth/player/register');
    }
 }
 
