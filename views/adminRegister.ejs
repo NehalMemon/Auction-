@@ -10,7 +10,7 @@
 
 <body class="bg-gray-900 min-h-screen flex items-center justify-center relative font-sans antialiased">
 
-  <div class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4 space-y-4">
+  <!-- <div class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4 space-y-4">
     
     <% if (locals.success_msg && locals.success_msg.length > 0) { %>
       <div class="bg-green-500/10 border-l-4 border-green-500 text-green-400 p-4 rounded shadow-2xl backdrop-blur-sm flex items-center justify-between animate-bounce" role="alert">
@@ -30,7 +30,9 @@
       </div>
     <% } %>
 
-  </div>
+  </div> -->
+
+   <%- include('partials/alert') %>
 
   <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 w-full max-w-md">
 

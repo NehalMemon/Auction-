@@ -17,26 +17,73 @@ ownerController.renderRegister = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// ownerController.handleRegister = async (req, res) => {
+//   try {
+//     const { name, email, password } = req.validatedData;
+
+//     const imageURL = req.file ? req.file.path : null;
+
+//     //   console.log("Data:", req.validatedData);
+//     //   console.log("File:", req.file);
+//     const existingOwner = await Owner.findOne({ where: { email } });
+
+//     if (existingOwner) {
+//       req.flash("error", "Email already exists!");
+//       return res.status(400).render("createOwner", {
+//         title: "Create New Owner",
+//         error_msg: "Email already exists!",
+//         oldInput: { name, email },
+//         csrfToken: req.csrfToken ? req.csrfToken() : "",
+//       });
+//     }
+
+//     const hash = await bcrypt.hash(password, 10);
+
+//     await Owner.create({
+//       name,
+//       email,
+//       password: hash,
+//       image: imageURL,
+//     });
+
+//     req.flash("success", "Owner registered successfully!");
+//     return res.redirect("/admin/dashboard");
+//   } catch (error) {
+//     console.error("Error creating owner:", error);
+//     req.flash("error", "Registration failed. Please try again.");
+//     return res.status(500).redirect("/auth/owner/register");
+//   }
+// };
+
+// suraish add below "handleRegister" function:
 ownerController.handleRegister = async (req, res) => {
   try {
     const { name, email, password } = req.validatedData;
 
     const imageURL = req.file ? req.file.path : null;
 
-    //   console.log("Data:", req.validatedData);
-    //   console.log("File:", req.file);
+    const existingOwner = await Owner.findOne({
+      where: { email },
+      paranoid: false,
+    });
 
-    const existingOwner = await Owner.findOne({ where: { email } });
     if (existingOwner) {
-      req.flash("error", "Email already exists!");
-      return res.status(400).render("createOwner", {
-        title: "Create New Owner",
-        error_msg: "Email already exists!",
-        oldInput: { name, email },
-        csrfToken: req.csrfToken ? req.csrfToken() : "",
+      if (!existingOwner.deletedAt) {
+        req.flash("error", "Email already exists!");
+        return res.status(400).render("createOwner", {
+          title: "Create New Owner",
+          oldInput: { name, email },
+          error_msg: "Email already exists!",
+          csrfToken: req.csrfToken ? req.csrfToken() : "",
+        });
+      }
+
+      // mask email of soft-deleted user
+      await existingOwner.update({
+        email: `${existingOwner.email}__deleted__${Date.now()}`,
       });
     }
-
     const hash = await bcrypt.hash(password, 10);
 
     await Owner.create({

@@ -40,7 +40,28 @@
 
 </div>
 
+<script>
+  // Wait for the DOM to fully load
+  document.addEventListener('DOMContentLoaded', () => {
+    // Select all alert elements
+    const alerts = document.querySelectorAll('.animate-fade-in');
 
+    alerts.forEach((alert) => {
+      // Set the timer (5000ms = 5 seconds)
+      setTimeout(() => {
+        // Step 1: Add a transition for a smooth disappear effect
+        alert.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        alert.style.opacity = "0";
+        alert.style.transform = "translateX(20px)"; // Moves slightly right while fading
+
+        // Step 2: Physically remove the element from DOM after transition ends
+        setTimeout(() => {
+          alert.remove();
+        }, 600); // This matches the 0.6s transition time
+      }, 5000); 
+    });
+  });
+</script>
 
 </body>
 </html>
