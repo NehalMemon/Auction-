@@ -8,16 +8,15 @@ import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
 import { encodeId, decodeId } from '../utils/idHasher.js';
 
 
-
 const ownerController = {};
 
 ownerController.renderRegister = async (req, res) => {
-  try {
-    res.render("createOwner", { title: "Register New Owner" });
-  } catch (error) {
-    console.error("Error in GET /register:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
+   try {
+      res.render("createOwner", { title: "Register New Owner" });
+   } catch (error) {
+      console.error("Error in GET /register:", error);
+      res.status(500).json({ message: "Internal server error" });
+   }
 };
 
 ownerController.handleRegister = async (req, res) => {
@@ -29,7 +28,6 @@ ownerController.handleRegister = async (req, res) => {
     //   console.log("Data:", req.validatedData);
     //   console.log("File:", req.file);
     const existingOwner = await Owner.findOne({ where: { email } });
-
     if (existingOwner) {
       req.flash("error", "Email already exists!");
       return res.status(400).render("createOwner", {
@@ -60,64 +58,61 @@ ownerController.handleRegister = async (req, res) => {
 
 
 ownerController.handleRegister = async (req, res) => {
+   try {
 
-  try {
-    const { name, email, password } = req.validatedData;
-
-    const imageURL = req.file ? req.file.path : null;
+      const { name, email, password } = req.validatedData;
 
 
-    const existingOwner = await Owner.findOne({
-      where: { email },
-      paranoid: false,
-    });
+      const imageURL = req.file ? req.file.path : null;
 
-    if (existingOwner) {
-      if (!existingOwner.deletedAt) {
-        req.flash("error", "Email already exists!");
-        return res.status(400).render("createOwner", {
-          title: "Create New Owner",
-          oldInput: { name, email },
-          error_msg: "Email already exists!",
-          csrfToken: req.csrfToken ? req.csrfToken() : "",
-        });
+      const existingOwner = await Owner.findOne({
+         where: { email },
+         paranoid: false,
+      });
+
+      if (existingOwner) {
+         req.flash('error', 'Email already exists!');
+         return res.status(400).render('createOwner', {
+            title: 'Create New Owner',
+            error_msg: 'Email already exists!',
+            oldInput: { name, email },
+            csrfToken: req.csrfToken ? req.csrfToken() : ''
+         });
       }
 
-      // mask email of soft-deleted user
-      await existingOwner.update({
-        email: `${existingOwner.email}__deleted__${Date.now()}`,
+
+      const hash = await bcrypt.hash(password, 10);
+
+      await Owner.create({
+         name,
+         email,
+         password: hash,
+         image: imageURL
       });
-    }
-    const hash = await bcrypt.hash(password, 10);
 
-    await Owner.create({
-      name,
-      email,
-      password: hash,
-      image: imageURL,
-    });
 
-    req.flash("success", "Owner registered successfully!");
-    return res.redirect("/admin/dashboard");
-  } catch (error) {
-    console.error("Error creating owner:", error);
-    req.flash("error", "Registration failed. Please try again.");
-    return res.status(500).redirect("/auth/owner/register");
-  }
-};
+      req.flash('success', 'Owner registered successfully!');
+      return res.redirect('/admin/dashboard');
+
+   } catch (error) {
+      console.error("Error creating owner:", error);
+      req.flash('error', 'Registration failed. Please try again.');
+      return res.status(500).redirect('/auth/owner/register');
+   }
+}
 
 ownerController.renderSignin = (req, res) => {
-  try {
-    res.render("ownerSignin", { title: "Sign In Owner" });
-  } catch (error) {
-    console.error("Error in GET /register:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
+   try {
+      res.render("ownerSignin", { title: "Sign In Owner" });
+   } catch (error) {
+      console.error("Error in GET /register:", error);
+      res.status(500).json({ message: "Internal server error" });
+   }
 };
 
 ownerController.handleSignin = async (req, res) => {
-  try {
-    const { email, password } = req.validatedData;
+   try {
+      const { email, password } = req.validatedData;
 
       const owner = await Owner.findOne({ where: { email }, attributes: ['id', 'name', 'email', 'password'] });
 
@@ -126,14 +121,17 @@ ownerController.handleSignin = async (req, res) => {
          return res.status(400).redirect('/auth/owner/signin');
       }
 
+
+
       const validPassword = await bcrypt.compare(password, owner.password);
       if (!validPassword) {
-
-         req.flash('error', 'Invalid email or password.');
-         return res.status(400).redirect('/auth/owner/signin');
+         req.flash("error", "Invalid email or password.");
+         return res.status(400).redirect("/auth/owner/signin");
       }
-    const accessToken = generateAccessToken(owner, "owner");
-  
+      const accessToken = generateAccessToken(owner, "owner");
+
+
+
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: owner.id } });
       if (oldRefreshToken) {
          await RefreshToken.destroy({ where: { userId: owner.id } });
