@@ -9,26 +9,34 @@ import flash from 'connect-flash';
 import cookieParser from "cookie-parser";
 import currentPath from "./middlewares/currentPath.js" 
 import db from './models/index.js'; 
-
-// 2. Destructure the models you need
-const { Team, Owner } = db;
-
-
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 
-
+// 1. Basic Parsers (Must come first)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
 
+// 2. Static Files
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, "public")));
 
+// 3. Socket.io availability (Good place for this)
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+// 4. Session Setup (Must be before Flash and CSRF)
 app.use(
   session({
     name: "ui.sid",
@@ -40,42 +48,33 @@ app.use(
       httpOnly: true,
       sameSite: "strict",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 30 * 60 * 1000 // short lifetime
+      maxAge: 30 * 60 * 1000 
     }
   })
 );
 
-
-
+// 5. Flash Messages (Depends on Session)
 app.use(flash());
 app.use((req, res, next) => {
     res.locals.success_msg = req.flash('success');
     res.locals.error_msg = req.flash('error');
-   
     next(); 
 });
 
-
-
+// 6. CSRF & Security (Must be AFTER Session)
 
 app.use((req, res, next) => {
+
   res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
   next();
 });
 
-
+// 7. Custom Pathing & Routes
 app.set("view engine", "ejs");
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "public")));
-
-
-
-app.use(currentPath); // suraish add this middleware.
+app.use(currentPath); 
 app.use("/", indexroute);
 
-
-// CSRF Error Handler (VERY IMPORTANT)
+// 8. Error Handlers (Always last)
 app.use((err, req, res, next) => {
   if (err.code === "EBADCSRFTOKEN") {
     req.flash("error", "Form expired or invalid CSRF token");
@@ -114,8 +113,15 @@ app.use((err, req, res, next) => {
 //     }
 // })();
 
+io.on('connection', (socket) => {
+    console.log('A user connected: ' + socket.id);
 
+    // This is where we will listen for "bid" events later
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+});
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+httpServer.listen(3000, () => {
+  console.log(`Server is running on port ${3000}`);
 });
