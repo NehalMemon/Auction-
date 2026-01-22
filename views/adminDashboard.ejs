@@ -143,4 +143,14 @@
     </div>
 
 </body>
-</html>
+</html><script src="/socket.io/socket.io.js"></script>
+
+<script>
+  // 2. Initialize the connection
+  const socket = io();
+
+  // 3. Confirm connection on the client side (Optional but helpful)
+  socket.on('connect', () => {
+    console.log('Connected to server with ID:', socket.id);
+  });
+</script>

@@ -1,5 +1,5 @@
 import db from '../models/index.js';
-const { Owner,Team } = db;
+const { Owner, Team } = db;
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
 import RefreshToken from '../models/refreshTokenModel.js';
@@ -7,7 +7,7 @@ import tokenHash from '../utils/tokenHasher.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
 import { encodeId, decodeId } from '../utils/idHasher.js';
 
-const ownerController= {}
+const ownerController = {}
 
 
 ownerController.renderRegister = async (req, res) => {
@@ -20,47 +20,47 @@ ownerController.renderRegister = async (req, res) => {
    }
 }
 ownerController.handleRegister = async (req, res) => {
-    try {
-     
-        const { name, email, password } = req.validatedData;
+   try {
 
-        
-        const imageURL = req.file ? req.file.path : null; 
+      const { name, email, password } = req.validatedData;
+
+
+      const imageURL = req.file ? req.file.path : null;
 
       //   console.log("Data:", req.validatedData);
       //   console.log("File:", req.file);
 
-       
-        const existingOwner = await Owner.findOne({ where: { email } });
-        if (existingOwner) {
-            req.flash('error', 'Email already exists!');
-            return res.status(400).render('createOwner', {
-                title: 'Create New Owner',
-                error_msg: 'Email already exists!',
-                oldInput: { name, email },
-                csrfToken: req.csrfToken ? req.csrfToken() : '' 
-            });
-        }
 
-     
-        const hash = await bcrypt.hash(password, 10);
-        
-        await Owner.create({
-            name,
-            email,
-            password: hash,
-            image: imageURL 
-        });
+      const existingOwner = await Owner.findOne({ where: { email } });
+      if (existingOwner) {
+         req.flash('error', 'Email already exists!');
+         return res.status(400).render('createOwner', {
+            title: 'Create New Owner',
+            error_msg: 'Email already exists!',
+            oldInput: { name, email },
+            csrfToken: req.csrfToken ? req.csrfToken() : ''
+         });
+      }
 
-       
-        req.flash('success', 'Owner registered successfully!');
-        return res.redirect('/admin/dashboard'); 
 
-    } catch (error) {
-        console.error("Error creating owner:", error);
-        req.flash('error', 'Registration failed. Please try again.');
-        return res.status(500).redirect('/auth/owner/register');
-    }
+      const hash = await bcrypt.hash(password, 10);
+
+      await Owner.create({
+         name,
+         email,
+         password: hash,
+         image: imageURL
+      });
+
+
+      req.flash('success', 'Owner registered successfully!');
+      return res.redirect('/admin/dashboard');
+
+   } catch (error) {
+      console.error("Error creating owner:", error);
+      req.flash('error', 'Registration failed. Please try again.');
+      return res.status(500).redirect('/auth/owner/register');
+   }
 }
 
 ownerController.renderSignin = (req, res) => {
@@ -76,27 +76,27 @@ ownerController.handleSignin = async (req, res) => {
    try {
       const { email, password } = req.validatedData;
 
-      const owner = await Owner.findOne({ where: { email },attributes: ['id', 'name', 'email', 'password'] });
+      const owner = await Owner.findOne({ where: { email }, attributes: ['id', 'name', 'email', 'password'] });
 
       if (!owner) {
          req.flash('error', 'Invalid email or password.');
          return res.status(400).redirect('/auth/owner/signin');
       }
- 
+
       const validPassword = await bcrypt.compare(password, owner.password);
       if (!validPassword) {
-   
+
          req.flash('error', 'Invalid email or password.');
          return res.status(400).redirect('/auth/owner/signin');
       }
-     ;
+      ;
 
       const accessToken = generateAccessToken(owner, "owner");
 
 
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: owner.id } });
       if (oldRefreshToken) {
-         await RefreshToken.destroy({where:{userId: owner.id}});
+         await RefreshToken.destroy({ where: { userId: owner.id } });
       }
       const refreshToken = generateRefreshToken(owner, "owner");
       const hashedToken = tokenHash(refreshToken);
@@ -123,7 +123,7 @@ ownerController.handleSignin = async (req, res) => {
          maxAge: process.env.REFRESH_TOKEN_LIFE
       });
 
-      const hashedId = encodeId( owner.id)
+      const hashedId = encodeId(owner.id)
 
       req.flash('success', 'Signed in successfully!');
       return res.status(200).redirect(`/owner/profile/${hashedId}`);
@@ -138,58 +138,62 @@ ownerController.handleSignin = async (req, res) => {
 
 ownerController.renderDashboard = async (req, res) => {
    const currentOwner = req.owner;
-   res.render('ownerDashboard', { 
-   owner: currentOwner
-});
+   res.render('ownerDashboard', {
+      owner: currentOwner
+   });
 }
 
 ownerController.renderAllOwners = async (req, res) => {
    try {
       const owners = await Owner.findAll({
-         include:[{
-            model:Team,
-            as:"team"
+         include: [{
+            model: Team,
+            as: "team"
          }]
-      });  
+      });
       const secureOwners = owners.map(owner => {
-               const t = owner.get({ plain: true });
-               t.hashedId = encodeId(t.id);
-               // console.log(p.hashedId)
-               return t
-            })
+         const t = owner.get({ plain: true });
+         t.hashedId = encodeId(t.id);
+         // console.log(p.hashedId)
+         return t
+      })
       res.render('owners', { title: 'All Owners', owners: secureOwners });
    } catch (error) {
       console.error("Error fetching owners:", error);
       res.status(500).json({ message: "Internal server error" });
-   }  
+   }
 }
 
 ownerController.renderOwnerProfile = async (req, res) => {
    try {
-
       const Id = req.params.id;
-
       const ownerId = decodeId(Id);
-      // console.log(playerId)
+
       if (!ownerId) {
-         return res.status(400).json({ message: "invalid id" })
+         return res.status(400).json({ message: "invalid id" });
       }
-      const owner = await Owner.findByPk(ownerId,
-         { include:[{
-            model:Team,
-            as:"team"
-         }]}
-      );
+
+      const owner = await Owner.findByPk(ownerId, {
+         include: [{
+            model: Team,
+            as: "team"
+         }]
+      });
+
       if (!owner) {
          return res.status(404).json({ message: "Owner not found" });
       }
 
-      const teamId = encodeId(owner.team.id)
-
       const ownerData = owner.get({ plain: true });
       ownerData.id = ownerId;
       ownerData.hashedId = Id;
-      ownerData.teamId = teamId;
+
+      // FIXED: Only try to encode teamId if owner.team is NOT null
+      if (owner.team) {
+         ownerData.teamId = encodeId(owner.team.id);
+      } else {
+         ownerData.teamId = null;
+      }
 
       res.render('ownerProfile', { owner: ownerData });
 
@@ -210,10 +214,12 @@ ownerController.renderEdit = async (req, res) => {
          return res.status(400).json({ message: "invalid id" })
       }
       const owner = await Owner.findByPk(ownerId,
-          { include:[{
-            model:Team,
-            as:"team"
-         }]}
+         {
+            include: [{
+               model: Team,
+               as: "team"
+            }]
+         }
       );
       if (!owner) {
          return res.status(404).json({ message: "Owner not found" });
@@ -239,7 +245,7 @@ ownerController.handleEdit = async (req, res) => {
          return res.redirect('/owner/ownerslist');
       }
 
-   
+
       const owner = await Owner.findByPk(ownerId);
       if (!owner) {
          req.flash('error', 'owner not found');
@@ -247,7 +253,7 @@ ownerController.handleEdit = async (req, res) => {
       }
 
       const { name, email, password } = req.validatedData;
-   
+
       const imageUrl = req.file ? req.file.path : owner.image;
 
 
@@ -272,25 +278,31 @@ ownerController.handleEdit = async (req, res) => {
 ownerController.handleDelete = async (req, res) => {
    try {
       const Id = req.params.id;
-      const playerId = decodeId(Id);
+      const ownerId = decodeId(Id);
 
-      if (!playerId) {
+      if (!ownerId) {
          req.flash('error', 'Invalid ID');
-         return res.redirect('/player/playerslist');
+         return res.redirect('/owner/ownerslist');
       }
 
-         // Delete player
-       await Player.destroy({
-            where: {Id : playerId}  // or hashedId if you store it in db
-        });
+      await Team.destroy({
+         where: {
+            ownerId: ownerId
+         }
+      })
 
-      req.flash('success', 'Player deleted successfully!');
-      return res.redirect('/player/playerslist');
+      // Delete player
+      await Owner.destroy({
+         where: { Id: ownerId }  // or hashedId if you store it in db
+      });
+
+      req.flash('success', 'owner deleted successfully!');
+      return res.redirect('/owner/ownerslist');
 
    } catch (error) {
-      console.error("Error deleting player:", error);
-      req.flash('error', 'Failed to delete player');
-      return res.redirect(`/player/playerslist/${req.params.id}`);
+      console.error("Error deleting owner:", error);
+      req.flash('error', 'Failed to delete owner');
+      return res.redirect(`/owner/ownerlist/${req.params.id}`);
    }
 }
 
@@ -299,7 +311,7 @@ ownerController.refreshToken = async (req, res, originalUrl) => {
 
    if (!refreshTokenFromCookie) {
       req.flash('error', 'Invalid refresh token. Please login again.');
-         return res.status(403).redirect('/auth/owner/signin');
+      return res.status(403).redirect('/auth/owner/signin');
    }
    try {
       const decoded = jwt.verify(refreshTokenFromCookie, process.env.REFRESH_TOKEN_SECRET);
@@ -316,8 +328,8 @@ ownerController.refreshToken = async (req, res, originalUrl) => {
       }
 
       if (storedToken.expiryDate < new Date()) {
-            req.flash('error', 'Refresh token expired. Please login again.');
-            return res.status(403).redirect('/auth/owner/signin');
+         req.flash('error', 'Refresh token expired. Please login again.');
+         return res.status(403).redirect('/auth/owner/signin');
       }
 
       const newAccessToken = generateAccessToken({ id: decoded.id });
@@ -327,26 +339,26 @@ ownerController.refreshToken = async (req, res, originalUrl) => {
       storedToken.expiryDate = new Date().getDate() + parseInt(process.env.REFRESH_TOKEN_LIFE);
       await storedToken.save();
 
-       res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+      res.cookie("refreshToken", newRefreshToken, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === "production",
+         sameSite: "strict",
+         maxAge: 7 * 24 * 60 * 60 * 1000
+      });
 
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000
-    });
+      res.cookie("accessToken", newAccessToken, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === "production",
+         sameSite: "strict",
+         maxAge: 15 * 60 * 1000
+      });
       req.flash('success', 'User verified!');
-       return res.redirect(`/auth/owner/signin?redirect=${encodeURIComponent(originalUrl || "/")}`)
+      return res.redirect(`/auth/owner/signin?redirect=${encodeURIComponent(originalUrl || "/")}`)
    }
    catch (error) {
       console.error("Error in refreshing token:", error);
       req.flash('error', 'An error occurred while verifying user. Please login again.');
-      }
+   }
 
 }
 

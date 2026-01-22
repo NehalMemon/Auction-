@@ -2,9 +2,7 @@ import dbConfig from '../config/config.js';
 const { sequelizeTZ, DataTypes, Model } = dbConfig;
 
 class playerModel extends Model {
-
     static associate(models) {
-        // Use 'models.Team'
         playerModel.belongsTo(models.Team, {
             foreignKey: 'teamId',
             as: 'team',
@@ -53,11 +51,11 @@ playerModel.init({
         type: DataTypes.ENUM,
         values: ['Top-order', 'Middle-order', 'Lower-order'],
         defaultValue: 'Top-order',
-        allowNull: true, // ✅ Fixed 'ture' to 'true'
+        allowNull: true,
     },
     bowlingType: {
         type: DataTypes.ENUM,
-        values: ['Fast', 'Medium', 'Spin',],
+        values: ['Fast', 'Medium', 'Spin'],
         defaultValue: 'Fast',
         allowNull: true,
     },
@@ -65,13 +63,21 @@ playerModel.init({
         type: DataTypes.INTEGER,
         allowNull: true,
     },
+    // Track auction lifecycle status
+    status: {
+        type: DataTypes.ENUM,
+        values: ['available', 'bidding', 'sold', 'unsold'],
+        defaultValue: 'available',
+        allowNull: false,
+    },
     isSold: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,
     },
+    // Changed to BIGINT for large currency values
     soldPrice: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: true,
         defaultValue: 0,
     },
@@ -89,7 +95,6 @@ playerModel.init({
     campus: {
         type: DataTypes.ENUM,
         values: ['Bahadurabad', 'Clifton', 'Idara-e-noor', 'Phosphorus'],
-        defaultValue: 'Silver',
         allowNull: false,
     },
 }, {
