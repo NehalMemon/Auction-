@@ -36,12 +36,26 @@
                         <i class="fas fa-edit"></i> Edit
                     </a>
 
-                    <form action="/team/profile/delete/<%= team.hashedId %>" method="POST">
+                    <!-- <form action="/team/profile/delete/<%= team.hashedId %>" method="POST">
                         <button type="button"
                            class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
                            onclick="if(confirm('Are you sure you want to delete this team? This will unassign all players.')) this.form.submit()">
                            <i class="fas fa-trash"></i> Delete
                           </button>
+                    </form> -->
+
+                     <form action="/team/profile/delete/<%= team.hashedId %>" method="POST">
+                        <button type="button"
+                           class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                           onclick="document.getElementById('deleteModal-<%= team.hashedId %>').classList.remove('hidden')">
+                           <i class="fas fa-trash"></i> Delete
+                          </button>
+
+                          <%- include('partials/deleteModal', { 
+                                itemName: team.name, 
+                                deleteUrl: '/team/profile/delete/' + team.hashedId,
+                                modalId: 'deleteModal-' + team.hashedId 
+                          }) %>
                     </form>
                 </div>
             </header>

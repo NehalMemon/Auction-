@@ -49,29 +49,6 @@ teamController.handleRegister = async (req, res) => {
 
     const imageUrl = req.file ? req.file.path : null;
 
-    // suraish add starts ------------------------
-    const existingTeam = await Team.findOne({
-      where: { email },
-      paranoid: false,
-    });
-
-    if (existingTeam) {
-      if (!existingTeam.deletedAt) {
-        req.flash("error", "Email already exists!");
-        return res.status(400).render("createTeam", {
-          title: "Create New Team",
-          oldInput: { name, email },
-          error_msg: "Email already exists!",
-          csrfToken: req.csrfToken ? req.csrfToken() : "",
-        });
-      }
-
-      await existingTeam.update({
-        email: `${existingTeam.email}__deleted__${Date.now()}`,
-      });
-    }
-    // suraish add finish ------------------------
-
     await Team.create({
       name: Name,
       ownerId,
@@ -235,24 +212,24 @@ teamController.handleEdit = async (req, res) => {
 teamController.handleDelete = async (req, res) => {
   try {
     const Id = req.params.id;
-    const playerId = decodeId(Id);
+    const teamId = decodeId(Id);
 
-    if (!playerId) {
+    if (!teamId) {
       req.flash("error", "Invalid ID");
-      return res.redirect("/player/playerslist");
+      return res.redirect("/team/teamslist");
     }
 
     // Delete player
-    await Player.destroy({
-      where: { Id: playerId }, // or hashedId if you store it in db
+    await Team.destroy({
+      where: { Id: teamId }, // or hashedId if you store it in db
     });
 
-    req.flash("success", "Player deleted successfully!");
-    return res.redirect("/player/playerslist");
+    req.flash("success", "Team deleted successfully!");
+    return res.redirect("/team/teamslist");
   } catch (error) {
-    console.error("Error deleting player:", error);
-    req.flash("error", "Failed to delete player");
-    return res.redirect(`/player/playerslist/${req.params.id}`);
+    console.error("Error deleting Team:", error);
+    req.flash("error", "Failed to delete Team");
+    return res.redirect(`/team/teamslist/${req.params.id}`);
   }
 };
 export default teamController;
