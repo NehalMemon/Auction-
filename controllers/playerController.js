@@ -1,56 +1,89 @@
-import db from '../models/index.js';
+import db from "../models/index.js";
 const { Player } = db;
-import bcrypt from 'bcrypt';
-import RefreshToken from '../models/refreshTokenModel.js';
-import tokenHash from '../utils/tokenHasher.js';
-import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
-import { encodeId, decodeId } from '../utils/idHasher.js';
+import bcrypt from "bcrypt";
+import RefreshToken from "../models/refreshTokenModel.js";
+import tokenHash from "../utils/tokenHasher.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
+import { encodeId, decodeId } from "../utils/idHasher.js";
 
-const playerController = {}
-
+const playerController = {};
 
 playerController.renderRegister = async (req, res) => {
-   try {
-      res.render('createPlayer', { title: 'Register New Player' });
-   }
-   catch (error) {
-      console.error("Error in GET /register:", error);
-      res.status(500).json({ message: "Internal server error" });
-   }
-}
+  try {
+    res.render("createPlayer", { title: "Register New Player" });
+  } catch (error) {
+    console.error("Error in GET /register:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 playerController.handleRegister = async (req, res) => {
-   try {
-      const { name, email, phoneNumber } = req.validatedData;
-      console.log(req.validationData);
+  try {
+    const { name, email, phoneNumber } = req.validatedData;
+    console.log(req.validationData);
 
+<<<<<<< HEAD
+    let { playingStyle, category, battingOrder, bowlingType, auctionCategory } =
+      req.body;
+    console.log(req.body);
+    console.log(req.file);
+=======
       let { playingStyle, category, battingOrder, bowlingType, auctionCategory,basePrice,campus } = req.body;
       console.log(req.body);
       console.log(req.file);
+>>>>>>> main
 
-      if (bowlingType === "") {
-         bowlingType = null;
-      }
+    if (bowlingType === "") {
+      bowlingType = null;
+    }
 
-      const imageUrl = req.file ? req.file.path : null;
+    const imageUrl = req.file ? req.file.path : null;
 
-      await Player.create({
-         name,
-         email,
-         phoneNumber,
-         playingStyle,
-         category,
-         battingOrder,
-         bowlingType,
-         auctionCategory,
-         playerImage: imageUrl,
-         basePrice,
-         campus
-      });
+    // suraish add starts ------------------------
+    // const existingPlayer = await Player.findOne({
+    //   where: { email },
+    //   paranoid: false,
+    // });
 
-      req.flash('success', 'Player registered successfully.');
-      return res.redirect('/admin/dashboard');
+    // if (existingPlayer) {
+    //   if (!existingPlayer.deletedAt) {
+    //     req.flash("error", "Email already exists!");
+    //     return res.status(400).render("createPlayer", {
+    //       title: "Create New Player",
+    //       oldInput: { name, email },
+    //       error_msg: "Email already exists!",
+    //       csrfToken: req.csrfToken ? req.csrfToken() : "",
+    //     });
+    //   }
 
+<<<<<<< HEAD
+    //   await existingPlayer.update({
+    //     email: `${existingPlayer.email}__deleted__${Date.now()}`,
+    //   });
+    // }
+    // suraish add finish ------------------------
+
+    await Player.create({
+      name,
+      email,
+      phoneNumber,
+      playingStyle,
+      category,
+      battingOrder,
+      bowlingType,
+      auctionCategory,
+      playerImage: imageUrl,
+      basePrice,
+      campus,
+    });
+
+    req.flash("success", "Player registered successfully.");
+    return res.redirect("/admin/dashboard");
+  } catch (error) {
+    console.log("Error ",error)
+  }
+};
+=======
    } catch (error) {
       console.error("Registration Error:", error);
       req.flash('error', 'Registration failed: ' + error.message);
@@ -58,157 +91,155 @@ playerController.handleRegister = async (req, res) => {
       return res.redirect('/auth/player/register');
    }
 }
+>>>>>>> main
 
 playerController.renderAllPlayers = async (req, res) => {
-   try {
-      const players = await Player.findAll();
-      const securePlayers = players.map(player => {
-         const p = player.get({ plain: true });
-         p.hashedId = encodeId(p.id);
-         // console.log(p.hashedId)
-         return p
-      })
-      res.render('players', { title: 'All Players', players: securePlayers });
-
-
-   } catch (error) {
-      console.error("Error fetching players:", error);
-      res.status(500).json({ message: "Internal server error" });
-   }
-}
+  try {
+    const players = await Player.findAll();
+    const securePlayers = players.map((player) => {
+      const p = player.get({ plain: true });
+      p.hashedId = encodeId(p.id);
+      // console.log(p.hashedId)
+      return p;
+    });
+    res.render("players", { title: "All Players", players: securePlayers });
+  } catch (error) {
+    console.error("Error fetching players:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 playerController.renderPlayerProfile = async (req, res) => {
-   try {
+  try {
+    const Id = req.params.id;
 
-      const Id = req.params.id;
+    const playerId = decodeId(Id);
+    // console.log(playerId)
+    if (!playerId) {
+      return res.status(400).json({ message: "invalid id" });
+    }
+    const player = await Player.findByPk(playerId);
+    if (!player) {
+      return res.status(404).json({ message: "Player not found" });
+    }
 
-      const playerId = decodeId(Id);
-      // console.log(playerId)
-      if (!playerId) {
-         return res.status(400).json({ message: "invalid id" })
-      }
-      const player = await Player.findByPk(playerId);
-      if (!player) {
-         return res.status(404).json({ message: "Player not found" });
-      }
+    const playerData = player.get({ plain: true });
+    playerData.id = playerId;
+    playerData.hashedId = Id;
 
-      const playerData = player.get({ plain: true });
-      playerData.id = playerId;
-      playerData.hashedId = Id;
-
-      res.render('playerProfile', { player: playerData });
-
-
-   } catch (error) {
-      console.error("Error fetching players:", error);
-      res.status(500).json({ message: "Internal server error" });
-   }
-}
+    res.render("playerProfile", { player: playerData });
+  } catch (error) {
+    console.error("Error fetching players:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 playerController.renderEdit = async (req, res) => {
-   try {
-      const Id = req.params.id;
+  try {
+    const Id = req.params.id;
 
-      const playerId = decodeId(Id);
+    const playerId = decodeId(Id);
 
-      if (!playerId) {
-         return res.status(400).json({ message: "invalid id" })
-      }
-      const player = await Player.findByPk(playerId);
-      if (!player) {
-         return res.status(404).json({ message: "Player not found" });
-      }
+    if (!playerId) {
+      return res.status(400).json({ message: "invalid id" });
+    }
+    const player = await Player.findByPk(playerId);
+    if (!player) {
+      return res.status(404).json({ message: "Player not found" });
+    }
 
-      const playerData = player.get({ plain: true });
-      playerData.id = playerId;
-      playerData.hashedId = Id;
-      res.render('editPlayer', { player: playerData, title: 'edit  Player' });
-   }
-   catch (error) {
-      console.error("Error in GET /edit:", error);
-      res.status(500).json({ message: "Internal server error" });
-   }
-}
+    const playerData = player.get({ plain: true });
+    playerData.id = playerId;
+    playerData.hashedId = Id;
+    res.render("editPlayer", { player: playerData, title: "edit  Player" });
+  } catch (error) {
+    console.error("Error in GET /edit:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 playerController.handleEdit = async (req, res) => {
-   try {
-      const Id = req.params.id;
-      const playerId = decodeId(Id);
+  try {
+    const Id = req.params.id;
+    const playerId = decodeId(Id);
 
-      if (!playerId) {
-         req.flash('error', 'Invalid ID');
-         return res.redirect('/admin/players');
-      }
+    if (!playerId) {
+      req.flash("error", "Invalid ID");
+      return res.redirect("/admin/players");
+    }
 
-      // 1. Find the Player Instance
-      const player = await Player.findByPk(playerId);
-      if (!player) {
-         req.flash('error', 'Player not found');
-         return res.redirect('/admin/players');
-      }
+    // 1. Find the Player Instance
+    const player = await Player.findByPk(playerId);
+    if (!player) {
+      req.flash("error", "Player not found");
+      return res.redirect("/admin/players");
+    }
 
-      const { name, email, phoneNumber } = req.validatedData;
-      console.log(req.validationData);
+    const { name, email, phoneNumber } = req.validatedData;
+    console.log(req.validationData);
 
-      let { playingStyle, category, battingOrder, bowlingType, auctionCategory, campus, basePrice } = req.body;
-      console.log(req.body);
-      console.log(req.file);
+    let {
+      playingStyle,
+      category,
+      battingOrder,
+      bowlingType,
+      auctionCategory,
+      campus,
+      basePrice,
+    } = req.body;
+    console.log(req.body);
+    console.log(req.file);
 
-      if (bowlingType === "") {
-         bowlingType = null;
-      }
+    if (bowlingType === "") {
+      bowlingType = null;
+    }
 
+    const imageUrl = req.file ? req.file.path : player.playerImage;
 
-      const imageUrl = req.file ? req.file.path : player.playerImage;
+    await player.update({
+      name,
+      email,
+      phoneNumber,
+      campus,
+      playingStyle,
+      category,
+      battingOrder,
+      bowlingType,
+      auctionCategory,
+      basePrice,
+      playerImage: imageUrl,
+    });
 
-
-      await player.update({
-         name,
-         email,
-         phoneNumber,
-         campus,
-         playingStyle,
-         category,
-         battingOrder,
-         bowlingType,
-         auctionCategory,
-         basePrice,
-         playerImage: imageUrl
-      });
-
-      req.flash('success', 'Player updated successfully!');
-      return res.redirect('/admin/dashboard');
-
-   } catch (error) {
-      console.error("Error updating player:", error);
-      req.flash('error', 'Failed to update player');
-      return res.redirect(`/player/profile/edit/${req.params.id}`);
-   }
-}
+    req.flash("success", "Player updated successfully!");
+    return res.redirect("/admin/dashboard");
+  } catch (error) {
+    console.error("Error updating player:", error);
+    req.flash("error", "Failed to update player");
+    return res.redirect(`/player/profile/edit/${req.params.id}`);
+  }
+};
 playerController.handleDelete = async (req, res) => {
-   try {
-      const Id = req.params.id;
-      const playerId = decodeId(Id);
+  try {
+    const Id = req.params.id;
+    const playerId = decodeId(Id);
 
-      if (!playerId) {
-         req.flash('error', 'Invalid ID');
-         return res.redirect('/player/playerslist');
-      }
+    if (!playerId) {
+      req.flash("error", "Invalid ID");
+      return res.redirect("/player/playerslist");
+    }
 
-         // Delete player
-       await Player.destroy({
-            where: {Id : playerId}  // or hashedId if you store it in db
-        });
+    // Delete player
+    await Player.destroy({
+      where: { Id: playerId }, // or hashedId if you store it in db
+    });
 
-      req.flash('success', 'Player deleted successfully!');
-      return res.redirect('/player/playerslist');
-
-   } catch (error) {
-      console.error("Error deleting player:", error);
-      req.flash('error', 'Failed to delete player');
-      return res.redirect(`/player/playerslist/${req.params.id}`);
-   }
-}
-
+    req.flash("success", "Player deleted successfully!");
+    return res.redirect("/player/playerslist");
+  } catch (error) {
+    console.error("Error deleting player:", error);
+    req.flash("error", "Failed to delete player");
+    return res.redirect(`/player/playerslist/${req.params.id}`);
+  }
+};
 
 export default playerController;
