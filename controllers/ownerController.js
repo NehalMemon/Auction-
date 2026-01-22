@@ -272,25 +272,25 @@ ownerController.handleEdit = async (req, res) => {
 ownerController.handleDelete = async (req, res) => {
    try {
       const Id = req.params.id;
-      const playerId = decodeId(Id);
+      const ownerId = decodeId(Id);
 
-      if (!playerId) {
+      if (!ownerId) {
          req.flash('error', 'Invalid ID');
-         return res.redirect('/player/playerslist');
+         return res.redirect('/owner/ownerslist');
       }
 
          // Delete player
-       await Player.destroy({
+       await Owner.destroy({
             where: {Id : playerId}  // or hashedId if you store it in db
         });
 
-      req.flash('success', 'Player deleted successfully!');
-      return res.redirect('/player/playerslist');
+      req.flash('success', 'Owner deleted successfully!');
+      return res.redirect('/owner/ownerslist');
 
    } catch (error) {
-      console.error("Error deleting player:", error);
-      req.flash('error', 'Failed to delete player');
-      return res.redirect(`/player/playerslist/${req.params.id}`);
+      console.error("Error deleting owner:", error);
+      req.flash('error', 'Failed to delete owner');
+      return res.redirect(`/owner/ownerslist${req.params.id}`);
    }
 }
 
