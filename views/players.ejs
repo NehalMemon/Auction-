@@ -11,21 +11,7 @@
 
 <body class="bg-gray-900 text-gray-100 font-sans antialiased">
 
-    <!-- <div class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4 space-y-4">
-        <% if (locals.success_msg && locals.success_msg.length > 0) { %>
-            <div class="bg-green-500/10 border-l-4 border-green-500 text-green-400 p-4 rounded shadow-2xl backdrop-blur-sm flex items-center justify-between animate-bounce" role="alert">
-                <div><span class="font-bold">Success:</span> <%= success_msg %></div>
-            </div>
-        <% } %>
-        <% if (locals.error_msg && locals.error_msg.length > 0) { %>
-            <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-4 rounded shadow-2xl backdrop-blur-sm flex items-center justify-between" role="alert">
-                <div><span class="font-bold">Error:</span> <%= error_msg %></div>
-            </div>
-        <% } %>
-    </div> -->
-
     <%- include('partials/alert') %>
-    
     
     <div class="flex h-screen overflow-hidden">
        <%- include('partials/navbar') %>
@@ -66,16 +52,10 @@
                                 <tbody class="divide-y divide-gray-700">
                                     <% players.forEach(player => { %>
                                         <tr class="hover:bg-gray-700/30 transition-colors">
-                                            
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
-                                                    <!-- <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                                                        <%= player.name.charAt(0).toUpperCase() %>
-                                                        
-                                                    </div> -->
                                                     <div class="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
-                                                         <img src="<%= player.playerImage %>" class="rounded-full" alt="" srcset="">
-                                                        
+                                                         <img src="<%= player.playerImage %>" class="rounded-full h-full w-full object-cover" alt="<%= player.name %>">
                                                     </div>
                                                     <div class="ml-4">
                                                         <div class="text-sm font-medium text-white"><%= player.name %></div>
@@ -85,59 +65,32 @@
                                             </td>
 
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                               <span class="inline-flex items-center gag_2 text_xs font-semibold rounded_full
-                                                           bg_blue-900/30 text-blue-400 border_ border_blue-800">
-
-                                                 <% if (player.category === 'Batsman') { %>
-                                                    
-                                                    <img src="/images/cricket-icons/bat.png"
-                                                       class="w-10 h-8 bg_white">
-                                                        <!-- <span>Batsman</span> -->
-
-                                                 
-
-                                                 <% } else if (player.category === 'Bowler') { %>
-                                                 
-                                                  <img src="/images/cricket-icons/Ball.png"
-                                                       class="w-7 h-7 bg_white ">
-                                                       <!-- <span>Bowler</span> -->
-                                                 
-
-                                                <% } else if (player.category === 'All-rounder') { %>
-                                    
-                                                  <img src="/images/cricket-icons/BatsAndBoll.png"
-                                                       class="w-10 h-8 bg_white">
-                                                       <!-- <span>All-rounder</span> -->
-                                              
-                                            
-                                                <% } else if (player.category === 'Wicket-keeper-batsman') { %>
-                                                  
-                                                    <img src="/images/cricket-icons/Bat.png"
-                                                         class="w-10 h-8 bg_white">
-                                                    <img src="/images/cricket-icons/glovesGreen.png"
-                                                         class="w-7 h-7 bg_white">
-                                                  
-                                                     
-                                        
-                                                  
-                                                <% } %>
-                                            
-                                              </span>
-                                              
+                                                <span class="inline-flex items-center gap-2">
+                                                    <% if (player.category === 'Batsman') { %>
+                                                        <img src="/images/cricket-icons/bat.png" class="w-10 h-8">
+                                                    <% } else if (player.category === 'Bowler') { %>
+                                                        <img src="/images/cricket-icons/Ball.png" class="w-7 h-7">
+                                                    <% } else if (player.category === 'All-rounder') { %>
+                                                        <img src="/images/cricket-icons/BatsAndBoll.png" class="w-10 h-8">
+                                                    <% } else if (player.category === 'Wicket-keeper-batsman') { %>
+                                                        <img src="/images/cricket-icons/Bat.png" class="w-10 h-8">
+                                                        <img src="/images/cricket-icons/glovesGreen.png" class="w-7 h-7">
+                                                    <% } %>
+                                                </span>
                                             </td>
 
-
-                                            <td class="px-6 py-4 whitespace-nowrap flex justify-center items-center">
-                                                <% 
-                                                    let tierColor = 'text-slate-300 border-white/40 bg-slate-600/60 px-6 py-1'; 
-                                                    if(player.auctionCategory === 'Platinum') tierColor = 'text-blue-400 bg-blue-900/40 border-blue-700 font-bold px-3 py-1'; 
-                                                    if(player.auctionCategory === 'Diamond') tierColor = 'text-purple-400 bg-purple-900/40 border-purple-700 px-3 py-1';
-                                                    if(player.auctionCategory === 'Gold') tierColor = 'text-yellow-400 bg-yellow-900/30 border-yellow-700 px-6 py-1';
-                                                %>
-
-                                                <span class="text-xs rounded-full border <%= tierColor %>">
-                                                    <%= player.auctionCategory %>
-                                                </span>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex justify-center">
+                                                    <% 
+                                                        let tierColor = 'text-slate-300 border-white/40 bg-slate-600/60 px-6 py-1'; 
+                                                        if(player.auctionCategory === 'Platinum') tierColor = 'text-blue-400 bg-blue-900/40 border-blue-700 font-bold px-3 py-1'; 
+                                                        if(player.auctionCategory === 'Diamond') tierColor = 'text-purple-400 bg-purple-900/40 border-purple-700 px-3 py-1';
+                                                        if(player.auctionCategory === 'Gold') tierColor = 'text-yellow-400 bg-yellow-900/30 border-yellow-700 px-6 py-1';
+                                                    %>
+                                                    <span class="text-xs rounded-full border <%= tierColor %>">
+                                                        <%= player.auctionCategory %>
+                                                    </span>
+                                                </div>
                                             </td>
 
                                             <td class="px-6 py-4 whitespace-nowrap">
@@ -153,7 +106,6 @@
                                             </td>
 
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <!-- <a href="/admin/players/<%= player.id %>" class="text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-xs transition-colors border border-gray-600"> -->
                                                 <a href="/player/profile/<%= player.hashedId %>" class="text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-xs transition-colors border border-gray-600">
                                                     View Profile
                                                 </a>
@@ -162,6 +114,43 @@
                                     <% }) %>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div class="px-6 py-4 bg-gray-800/50 border-t border-gray-700 flex items-center justify-between">
+                            <div class="text-xs text-gray-400">
+                                Showing page <span class="text-white font-semibold"><%= currentPage %></span> of <span class="text-white font-semibold"><%= totalPages %></span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <% if (currentPage > 1) { %>
+                                    <a href="?page=<%= currentPage - 1 %>" class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 transition-all border border-gray-600">
+                                        <i class="fas fa-chevron-left text-xs"></i>
+                                    </a>
+                                <% } else { %>
+                                    <button disabled class="p-2 rounded-lg bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed">
+                                        <i class="fas fa-chevron-left text-xs"></i>
+                                    </button>
+                                <% } %>
+
+                                <div class="flex gap-1">
+                                    <% for(let i = 1; i <= totalPages; i++) { %>
+                                        <a href="?page=<%= i %>" 
+                                           class="px-3 py-1 rounded-md text-xs font-medium transition-all <%= currentPage === i ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-700 text-gray-400 hover:bg-gray-600' %>">
+                                            <%= i %>
+                                        </a>
+                                    <% } %>
+                                </div>
+
+                                <% if (currentPage < totalPages) { %>
+                                    <a href="?page=<%= currentPage + 1 %>" class="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 transition-all border border-gray-600">
+                                        <i class="fas fa-chevron-right text-xs"></i>
+                                    </a>
+                                <% } else { %>
+                                    <button disabled class="p-2 rounded-lg bg-gray-800 text-gray-600 border border-gray-700 cursor-not-allowed">
+                                        <i class="fas fa-chevron-right text-xs"></i>
+                                    </button>
+                                <% } %>
+                            </div>
                         </div>
                     <% } %>
                 </div>
