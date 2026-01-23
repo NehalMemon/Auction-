@@ -16,18 +16,6 @@
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans antialiased">
 
-    <!-- <div class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4 space-y-4">
-        <% if (locals.success_msg && locals.success_msg.length > 0) { %>
-            <div class="bg-green-500/10 border-l-4 border-green-500 text-green-400 p-4 rounded shadow-2xl backdrop-blur-sm flex items-center justify-between animate-bounce" role="alert">
-                <div><span class="font-bold">Success:</span> <%= success_msg %></div>
-            </div>
-        <% } %>
-        <% if (locals.error_msg && locals.error_msg.length > 0) { %>
-            <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-4 rounded shadow-2xl backdrop-blur-sm flex items-center justify-between" role="alert">
-                <div><span class="font-bold">Error:</span> <%= error_msg %></div>
-            </div>
-        <% } %>
-    </div> -->
       <%- include('alert') %>
 
     <div class="flex h-screen overflow-hidden">
@@ -50,7 +38,7 @@
                 </a>
 
                 <a href="/owner/ownerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors   
-                <%= currentPath === '/owner/ownerslist'
+                <%= (currentPath === '/owner/ownerslist' || currentPath.includes('/owner/profile'))
                          ? 'bg-gray-700 text-white'
                          : '' %>">
                     <i class="fas fa-users w-6"></i>
@@ -58,14 +46,15 @@
                 </a>
 
                 <a href="/player/playerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
-                <%= currentPath === '/player/playerslist'
+                <%= (currentPath === '/player/playerslist' || currentPath.includes('/player/profile'))
                          ? 'bg-gray-700 text-white'
                          : '' %>">
                     <i class="fas fa-running w-6"></i>
                     <span class="font-medium">Players</span>
                 </a>
                 <a href="/team/teamslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
-                <%= currentPath === '/team/teamslist' || currentPath === `/team/profile/${params.id}`
+              
+                <%= (currentPath === '/team/teamslist' || currentPath.includes('/team/profile/'))
                          ? 'bg-gray-700 text-white'
                          : '' %>">
                     <i class="fas fa-running w-6"></i>

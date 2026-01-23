@@ -60,7 +60,6 @@ app.use((req, res, next) => {
     res.locals.error_msg = req.flash('error');
     next(); 
 });
-
 // 6. CSRF & Security (Must be AFTER Session)
 
 app.use((req, res, next) => {

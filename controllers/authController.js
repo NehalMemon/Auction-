@@ -119,7 +119,8 @@ authController.handleSignin = async (req, res) => {
       });
 
 
-      req.flash('success', 'Signed in successfully!');
+      // req.flash('success', 'Signed in successfully!');
+      req.flash('success', 'Signed in successfully! suraish');
       return res.status(200).redirect('/admin/dashboard');
 
    }

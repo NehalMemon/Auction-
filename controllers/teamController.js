@@ -41,11 +41,10 @@ teamController.renderRegister = async (req, res) => {
 teamController.handleRegister = async (req, res) => {
   try {
     const { Name } = req.validatedData;
-    // console.log(req.validationData);
+
 
     let { ownerId } = req.body;
-    // console.log(req.body);
-    // console.log(req.file);
+
 
     const imageUrl = req.file ? req.file.path : null;
 
