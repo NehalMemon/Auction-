@@ -47,14 +47,6 @@ teamController.handleRegister = async (req, res) => {
 
 
     const imageUrl = req.file ? req.file.path : null;
-
-<<<<<<< HEAD
-    
-
-  
-
-=======
->>>>>>> 9d72d82f8d80a61dfafa8c37554478138dbd9654
     await Team.create({
       name: Name,
       ownerId,
