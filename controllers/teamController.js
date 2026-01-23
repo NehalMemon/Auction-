@@ -41,36 +41,16 @@ teamController.renderRegister = async (req, res) => {
 teamController.handleRegister = async (req, res) => {
   try {
     const { Name } = req.validatedData;
-    // console.log(req.validationData);
+
 
     let { ownerId } = req.body;
-    // console.log(req.body);
-    // console.log(req.file);
+
 
     const imageUrl = req.file ? req.file.path : null;
 
-    // suraish add starts ------------------------
-    const existingTeam = await Team.findOne({
-      where: { email },
-      paranoid: false,
-    });
+    
 
-    if (existingTeam) {
-      if (!existingTeam.deletedAt) {
-        req.flash("error", "Email already exists!");
-        return res.status(400).render("createTeam", {
-          title: "Create New Team",
-          oldInput: { name, email },
-          error_msg: "Email already exists!",
-          csrfToken: req.csrfToken ? req.csrfToken() : "",
-        });
-      }
-
-      await existingTeam.update({
-        email: `${existingTeam.email}__deleted__${Date.now()}`,
-      });
-    }
-    // suraish add finish ------------------------
+  
 
     await Team.create({
       name: Name,
