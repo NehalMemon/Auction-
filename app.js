@@ -2,23 +2,20 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import indexroute from "./routes/indexRoute.js";
+import auctionApiRouter from "./routes/auctionApiRouter.js";
 import { fileURLToPath } from "url";
 import "./config/config.js";
 import session from 'express-session';
 import flash from 'connect-flash';
 import cookieParser from "cookie-parser";
-import currentPath from "./middlewares/currentPath.js" 
-import db from './models/index.js'; 
-import { createServer } from "http";
-import { Server } from "socket.io";
+import currentPath from "./middlewares/currentPath.js"
+import db from './models/index.js';
 
 
 
 dotenv.config();
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer);
 
 // 1. Basic Parsers (Must come first)
 app.use(express.json());
@@ -30,11 +27,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "public")));
 
-// 3. Socket.io availability (Good place for this)
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
+// 3. Initialize global auction state
+if (typeof global.auctionActive === 'undefined') {
+  global.auctionActive = false;
+}
 
 // 4. Session Setup (Must be before Flash and CSRF)
 app.use(
@@ -48,7 +44,7 @@ app.use(
       httpOnly: true,
       sameSite: "strict",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 30 * 60 * 1000 
+      maxAge: 30 * 60 * 1000
     }
   })
 );
@@ -56,9 +52,9 @@ app.use(
 // 5. Flash Messages (Depends on Session)
 app.use(flash());
 app.use((req, res, next) => {
-    res.locals.success_msg = req.flash('success');
-    res.locals.error_msg = req.flash('error');
-    next(); 
+  res.locals.success_msg = req.flash('success');
+  res.locals.error_msg = req.flash('error');
+  next();
 });
 
 // 6. CSRF & Security (Must be AFTER Session)
@@ -71,8 +67,9 @@ app.use((req, res, next) => {
 
 // 7. Custom Pathing & Routes
 app.set("view engine", "ejs");
-app.use(currentPath); 
+app.use(currentPath);
 app.use("/", indexroute);
+app.use("/api/auction", auctionApiRouter);
 
 // 8. Error Handlers (Always last)
 app.use((err, req, res, next) => {
@@ -95,7 +92,7 @@ app.use((err, req, res, next) => {
 //         });
 
 //         if (team) {
-        
+
 //           console.log(team.owner.toJSON());
 
 
@@ -113,15 +110,7 @@ app.use((err, req, res, next) => {
 //     }
 // })();
 
-io.on('connection', (socket) => {
-    console.log('A user connected: ' + socket.id);
-
-    // This is where we will listen for "bid" events later
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-});
-
-httpServer.listen(3000, () => {
-  console.log(`Server is running on port ${3000}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Live Bidding | AuctionPro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-900 text-white overflow-hidden">
     <div class="h-screen flex flex-col p-8">
         <div class="max-w-6xl mx-auto w-full flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             <div class="lg:col-span-2 bg-gray-800 rounded-3xl border border-gray-700 p-8 flex flex-col justify-between">
                 <div id="bid-display-active">
                     <div class="flex gap-8 items-start">
-                        <div class="h-64 w-64 rounded-2xl bg-gray-700 border-4 border-gray-600 overflow-hidden shadow-2xl">
+                        <div
+                            class="h-64 w-64 rounded-2xl bg-gray-700 border-4 border-gray-600 overflow-hidden shadow-2xl">
                             <img id="display-img" src="" class="h-full w-full object-cover">
                         </div>
                         <div>
                             <h1 id="display-name" class="text-6xl font-black mb-2">---</h1>
-                            <span id="display-cat" class="bg-blue-600/20 text-blue-400 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">---</span>
+                            <span id="display-cat"
+                                class="bg-blue-600/20 text-blue-400 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">---</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-8">
                     <div class="flex justify-between items-end mb-4">
                         <div>
@@ -30,7 +34,8 @@
                             <p id="current-bid-amount" class="text-7xl font-black text-green-400">$0</p>
                         </div>
                     </div>
-                    <button id="bid-btn" disabled class="w-full py-8 rounded-2xl bg-gray-700 text-gray-500 text-4xl font-black uppercase cursor-not-allowed transition-all">
+                    <button id="bid-btn" disabled
+                        class="w-full py-8 rounded-2xl bg-gray-700 text-gray-500 text-4xl font-black uppercase cursor-not-allowed transition-all">
                         Place Bid
                     </button>
                 </div>
@@ -39,16 +44,134 @@
             <div class="space-y-6">
                 <div class="bg-blue-900/20 border border-blue-500/30 rounded-3xl p-6">
                     <p class="text-blue-400 text-xs font-bold uppercase mb-1">Your Remaining Budget</p>
-                    <p class="text-4xl font-black text-white">$<%= team.remainingBudget.toLocaleString() %></p>
+                    <p class="text-4xl font-black text-white">$<%= team.remainingBudget.toLocaleString() %>
+                    </p>
                 </div>
                 <div class="bg-gray-800 rounded-3xl border border-gray-700 p-6 flex-1 overflow-hidden">
                     <h3 class="text-gray-400 text-xs font-bold uppercase mb-4">Recent Bids</h3>
                     <div id="bid-logs" class="space-y-3">
-                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Team ID passed from server
+        const teamId = <%= team.id %>;
+        let remainingBudget = <%= team.remainingBudget %>;
+        let currentBidAmount = 0;
+        const bidIncrement = 100000; // 1 lakh increment
+
+        // DOM elements
+        const displayImg = document.getElementById('display-img');
+        const displayName = document.getElementById('display-name');
+        const displayCat = document.getElementById('display-cat');
+        const currentBidDisplay = document.getElementById('current-bid-amount');
+        const bidBtn = document.getElementById('bid-btn');
+        const bidLogs = document.getElementById('bid-logs');
+
+        // Place a bid
+        async function placeBid() {
+            const newBid = currentBidAmount + bidIncrement;
+
+            if (newBid > remainingBudget) {
+                alert('Bid exceeds your remaining budget!');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auction/bid', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ teamId, bidAmount: newBid })
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error('Failed to place bid:', err);
+            }
+        }
+
+        // Update UI from state
+        function updateUI(data) {
+            if (!data.isSessionActive) {
+                displayName.textContent = 'Session Offline';
+                displayCat.textContent = 'Waiting for admin';
+                bidBtn.disabled = true;
+                bidBtn.classList.add('bg-gray-700', 'text-gray-500', 'cursor-not-allowed');
+                bidBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'text-white', 'cursor-pointer');
+                return;
+            }
+
+            if (!data.auction) {
+                displayName.textContent = 'Waiting...';
+                displayCat.textContent = 'No player on block';
+                bidBtn.disabled = true;
+                bidBtn.classList.add('bg-gray-700', 'text-gray-500', 'cursor-not-allowed');
+                bidBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'text-white', 'cursor-pointer');
+                return;
+            }
+
+            // Update player info
+            const player = data.auction.player;
+            if (player) {
+                displayName.textContent = player.name;
+                displayCat.textContent = player.category || '---';
+                displayImg.src = player.playerImage || '';
+            }
+
+            // Update current bid
+            currentBidAmount = data.auction.currentBid;
+            currentBidDisplay.textContent = '$' + currentBidAmount.toLocaleString();
+
+            // Calculate next bid
+            const nextBid = currentBidAmount + bidIncrement;
+
+            // Enable/disable bid button based on budget
+            if (nextBid <= remainingBudget) {
+                bidBtn.disabled = false;
+                bidBtn.textContent = `BID $${nextBid.toLocaleString()}`;
+                bidBtn.classList.remove('bg-gray-700', 'text-gray-500', 'cursor-not-allowed');
+                bidBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white', 'cursor-pointer');
+            } else {
+                bidBtn.disabled = true;
+                bidBtn.textContent = 'INSUFFICIENT BUDGET';
+                bidBtn.classList.add('bg-gray-700', 'text-gray-500', 'cursor-not-allowed');
+                bidBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'text-white', 'cursor-pointer');
+            }
+
+            // Update bid logs
+            if (data.recentBids && data.recentBids.length > 0) {
+                bidLogs.innerHTML = data.recentBids.map(bid => `
+                    <div class="flex justify-between items-center p-2 bg-gray-700/30 rounded-lg">
+                        <span class="font-bold text-sm">${bid.teamName}</span>
+                        <span class="text-green-400 font-bold">$${bid.amount.toLocaleString()}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Poll for state updates
+        async function pollState() {
+            try {
+                const res = await fetch('/api/auction/state');
+                const data = await res.json();
+                updateUI(data);
+            } catch (err) {
+                console.error('Polling error:', err);
+            }
+        }
+
+        // Attach bid button handler
+        bidBtn.addEventListener('click', placeBid);
+
+        // Start polling
+        pollState(); // Initial fetch
+        setInterval(pollState, 1000);
+    </script>
 </body>
+
 </html>
