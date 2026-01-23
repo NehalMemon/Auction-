@@ -74,14 +74,33 @@ playerController.handleRegister = async (req, res) => {
 
 playerController.renderAllPlayers = async (req, res) => {
    try {
-      const players = await Player.findAll();
+      // Pagination Setup
+      const page = parseInt(req.query.page) || 1;
+      const limit = 8; // Number of players per page
+      const offset = (page - 1) * limit;
+
+      // Use findAndCountAll to get total count for pagination logic
+      const { count, rows: players } = await Player.findAndCountAll({
+         limit: limit,
+         offset: offset,
+         order: [['createdAt', 'DESC']]
+      });
+
+      const totalPages = Math.ceil(count / limit);
+
       const securePlayers = players.map((player) => {
          const p = player.get({ plain: true });
          p.hashedId = encodeId(p.id);
-         // console.log(p.hashedId)
          return p;
       });
-      res.render("players", { title: "All Players", players: securePlayers });
+
+      res.render("players", { 
+         title: "All Players", 
+         players: securePlayers,
+         currentPage: page,
+         totalPages: totalPages,
+         hasPlayers: count > 0
+      });
    } catch (error) {
       console.error("Error fetching players:", error);
       res.status(500).json({ message: "Internal server error" });
