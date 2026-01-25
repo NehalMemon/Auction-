@@ -20,23 +20,23 @@ const sequelizeTZ = new Sequelize(config.DB_NAME, config.DB_USER, config.DB_PASS
     dialect: config.dialect,
     port: config.port,
     logging: false,
-    
+
     // ✅ CORRECT STRUCTURE:
     dialectOptions: {
-        ssl: {
+        ssl: process.env.NODE_ENV === 'production' ? {
             require: true,
             rejectUnauthorized: false
-        },
+        } : false,
         connectTimeout: 60000
     },
-    
+
     pool: {
-      max: 5,
-      min: 0,
-      acquire: 60000, 
-      idle: 10000
+        max: 5,
+        min: 0,
+        acquire: 60000,
+        idle: 10000
     }
-  }
+}
 );
 
 sequelizeTZ.authenticate()
