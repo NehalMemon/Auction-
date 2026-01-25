@@ -49,7 +49,7 @@ authController.handleRegister = async (req, res) => {
       console.error("Error creating admin:", error);
 
 
-      return res.render('/auth/admin/signin', {
+      return res.render('adminRegister', {
          title: 'Register New Admin',
          error_msg: 'Something went wrong. Please try again.',
          oldInput: req.body
@@ -75,7 +75,7 @@ authController.handleSignin = async (req, res) => {
 
       if (!admin) {
          req.flash('error', 'Invalid email or password.');
-         return res.status(400).redirect('/api/auth/admin/signin');
+         return res.status(400).redirect('/auth/admin/signin');
       }
       // console.log(admin.id)
 
@@ -87,13 +87,13 @@ authController.handleSignin = async (req, res) => {
       }
       // console.log("Password matched");
 
-      const accessToken = generateAccessToken(admin,"admin");
-     
+      const accessToken = generateAccessToken(admin, "admin");
+
       const oldRefreshToken = RefreshToken.findOne({ where: { userId: admin.id } });
       if (oldRefreshToken) {
          await RefreshToken.destroy({ where: { userId: admin.id } });
       }
-      const refreshToken = generateRefreshToken(admin,"admin");
+      const refreshToken = generateRefreshToken(admin, "admin");
       const hashedToken = tokenHash(refreshToken);
       const expiryDate = new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_LIFE));
 
