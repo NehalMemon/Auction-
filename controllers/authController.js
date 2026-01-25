@@ -100,6 +100,7 @@ authController.handleSignin = async (req, res) => {
       await RefreshToken.create({
          token: hashedToken,
          userId: admin.id,
+         userType: 'admin',
          expiryDate: expiryDate
       })
 
@@ -148,13 +149,17 @@ authController.handleResetPassword = (req, res) => {
 
 
 authController.handleSignout = async (req, res) => {
+   const userType = res.locals.userType;
    res.clearCookie("accessToken");
    res.clearCookie("refreshToken");
    const { id } = req.user;
-   await RefreshToken.destroy({ where: { userId: id } });
+   await RefreshToken.destroy({ where: { userId: id, userType: userType } });
    req.flash('success', 'You have been signed out successfully.');
-   return res.redirect('/auth/admin/signin');
 
+   if (userType === 'owner') {
+      return res.redirect('/auth/owner/signin');
+   }
+   return res.redirect('/auth/admin/signin');
 }
 
 
@@ -177,33 +182,29 @@ authController.refreshToken = async (req, res, originalUrl) => {
    const refreshTokenFromCookie = req.cookies.refreshToken;
 
    if (!refreshTokenFromCookie) {
+      if (req.xhr || req.path.startsWith('/api/') || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+         return res.status(401).json({ success: false, message: 'Invalid refresh token' });
+      }
       req.flash('error', 'Invalid refresh token. Please login again.');
       return res.status(403).redirect('/auth/admin/signin');
    }
    try {
       const decoded = jwt.verify(refreshTokenFromCookie, process.env.REFRESH_TOKEN_SECRET);
-      const storedToken = await RefreshToken.findOne({ where: { userId: decoded.id } });
+      const storedToken = await RefreshToken.findOne({ where: { userId: decoded.id, userType: 'admin' } });
 
-      if (!storedToken) {
-         req.flash('error', 'Invalid refresh token. Please login again.');
+      if (!storedToken || storedToken.token !== tokenHash(refreshTokenFromCookie) || storedToken.expiryDate < new Date()) {
+         if (req.xhr || req.path.startsWith('/api/') || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.status(401).json({ success: false, message: 'Session expired or invalid' });
+         }
+         req.flash('error', 'Session expired. Please login again.');
          return res.status(403).redirect('/auth/admin/signin');
       }
 
-      if (storedToken.token !== tokenHash(refreshTokenFromCookie)) {
-         req.flash('error', 'Invalid refresh token. Please login again.');
-         return res.status(403).redirect('/auth/admin/signin');
-      }
-
-      if (storedToken.expiryDate < new Date()) {
-         req.flash('error', 'Refresh token expired. Please login again.');
-         return res.status(403).redirect('/auth/admin/signin');
-      }
-
-      const newAccessToken = generateAccessToken({ id: decoded.id });
-      const newRefreshToken = generateRefreshToken({ id: decoded.id });
+      const newAccessToken = generateAccessToken(decoded, 'admin');
+      const newRefreshToken = generateRefreshToken(decoded, 'admin');
 
       storedToken.token = tokenHash(newRefreshToken);
-      storedToken.expiryDate = new Date().getDate() + parseInt(process.env.REFRESH_TOKEN_LIFE);
+      storedToken.expiryDate = new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_LIFE));
       await storedToken.save();
 
       res.cookie("refreshToken", newRefreshToken, {

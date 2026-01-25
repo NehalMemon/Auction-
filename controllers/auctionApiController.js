@@ -157,7 +157,8 @@ auctionApiController.callPlayer = async (req, res) => {
  */
 auctionApiController.placeBid = async (req, res) => {
     try {
-        const { teamId, bidAmount } = req.body;
+        const { bidAmount } = req.body;
+        const ownerId = req.user.id; // From requireOwnerAuth middleware
 
         if (!global.auctionActive) {
             return res.status(400).json({ success: false, message: 'Auction session not active' });
@@ -173,37 +174,37 @@ auctionApiController.placeBid = async (req, res) => {
             return res.status(400).json({ success: false, message: 'No active auction' });
         }
 
-        // Get team and validate budget
-        const team = await Team.findByPk(teamId);
+        // Find team for this owner
+        const team = await Team.findOne({ where: { ownerId } });
         if (!team) {
-            return res.status(404).json({ success: false, message: 'Team not found' });
+            return res.status(404).json({ success: false, message: 'Owner has no team assigned' });
         }
 
         // Validate bid amount
         if (bidAmount <= auction.currentBid) {
             return res.status(400).json({
                 success: false,
-                message: `Bid must be higher than current bid: ${auction.currentBid}`
+                message: `Bid must be higher than current bid: $${auction.currentBid.toLocaleString()}`
             });
         }
 
         if (bidAmount > team.remainingBudget) {
             return res.status(400).json({
                 success: false,
-                message: 'Bid exceeds remaining budget'
+                message: `Insufficient budget! Your remaining budget is $${team.remainingBudget.toLocaleString()}`
             });
         }
 
         // Update auction with new bid
         await auction.update({
             currentBid: bidAmount,
-            lastBidTeamId: teamId
+            lastBidTeamId: team.id
         });
 
         // Record bid in history
         await BidHistory.create({
             playerId: auction.playerId,
-            teamId: teamId,
+            teamId: team.id,
             bidAmount: bidAmount
         });
 
@@ -211,7 +212,8 @@ auctionApiController.placeBid = async (req, res) => {
             success: true,
             message: 'Bid placed successfully',
             currentBid: bidAmount,
-            teamName: team.name
+            teamName: team.name,
+            remainingBudget: team.remainingBudget
         });
     } catch (error) {
         console.error('Error placing bid:', error);
@@ -251,9 +253,10 @@ auctionApiController.markSold = async (req, res) => {
             teamId: team.id
         });
 
-        // Update team - deduct from budget
+        // Update team - deduct from budget and increment playerCount
         await team.update({
-            remainingBudget: team.remainingBudget - auction.currentBid
+            remainingBudget: team.remainingBudget - auction.currentBid,
+            playerCount: team.playerCount + 1
         });
 
         // Complete the auction
