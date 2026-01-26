@@ -17,8 +17,7 @@ const parseCsrf = (req, res, next) => {
     next();
 };
 
-// ADMIN REGISTER - DISABLED (admin@bqicl.com is the only admin)
-// To add a new admin, add directly to database
+
 
 // 2. ADMIN SIGN IN
 router.get('/admin/signin', csrfProtection, parseCsrf, authController.renderSignin);
@@ -26,11 +25,6 @@ router.post('/admin/signin', csrfProtection, parseCsrf, validator(loginSchema, '
 // 3. ADMIN SIGN OUT 
 router.post('/admin/signout', requireAdminAuth, authController.handleSignout);
 
-// 4. ADMIN PASSWORD RESET - DISABLED
-// router.get('/admin/forget-password', authController.renderForgetPassword);
-// router.post('/admin/forget-password', authController.handleForgetPassword);
-// router.get('/admin/reset-password', authController.renderResetPassword);
-// router.post('/admin/reset-password', authController.handleResetPassword);
 
 
 
@@ -44,16 +38,6 @@ router.post('/owner/signin', validator(loginSchema, 'ownerSignin'), ownerControl
 
 // 3. OWNER SIGN OUT 
 router.post('/owner/signout', requireOwnerAuth, authController.handleSignout);
-
-// // 4. OWNER PASSWORD RESET
-// router.get('/owner/forget-password', authController.renderForgetPassword);
-// router.post('/owner/forget-password', authController.handleForgetPassword);
-// router.get('/reset-password', authController.renderResetPassword);
-// router.post('/reset-password', authController.handleResetPassword);
-
-
-// // 6. OWNER DASHBOARD
-// router.get('/owner/dashboard',adminOrOwner, authController.renderDashboard);
 
 
 // 1. PLAYER REGISTER

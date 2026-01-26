@@ -4,13 +4,12 @@ const { Player, Team } = db;
 const landingController = {
     renderLanding: async (req, res) => {
         try {
-            // Fetch basic stats for the landing page
             const totalPlayers = await Player.count();
             const totalTeams = await Team.count();
 
             // Check if auction is active (using global state or DB if implemented)
             const isAuctionLive = global.auctionActive || false;
-
+            
             // Get current player on bid if auction is live (mock logic for now or DB fetch)
             let currentPlayer = null;
             if (isAuctionLive) {

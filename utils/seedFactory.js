@@ -56,6 +56,7 @@ const seedFactory = {
         const bowlingTypes = ['Fast', 'Medium', 'Spin'];
         const auctionCategories = ['Platinum', 'Diamond', 'Gold', 'Silver'];
         const campuses = ['Bahadurabad', 'Clifton', 'Idara-e-noor', 'Phosphorus'];
+        const playerImage = "https://res.cloudinary.com/dctgbk32v/image/upload/v1769428992/auction_players/jzmhamig833dufx0yfe9.jpg"
 
         const players = [];
         for (let i = 1; i <= count; i++) {
@@ -73,6 +74,7 @@ const seedFactory = {
                 basePrice: 100000 + Math.floor(Math.random() * 900000),
                 auctionCategory: auctionCategories[Math.floor(Math.random() * auctionCategories.length)],
                 campus: campuses[Math.floor(Math.random() * campuses.length)],
+                playerImage,
                 // Default captain values
                 isCaptain: false,
                 isViceCaptain: false,

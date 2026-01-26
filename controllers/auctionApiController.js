@@ -4,16 +4,21 @@ import { decodeId, encodeId } from '../utils/idHasher.js';
 
 const auctionApiController = {};
 
-// Global state stored in memory (Vercel serverless limitation - use DB for production)
-// For Vercel, we'll rely on the database as the source of truth
+
 if (!global.auctionActive) {
     global.auctionActive = false;
 }
 
-/**
- * GET /api/auction/state
- * Returns current auction state for all clients to poll
- */
+auctionApiController.getAudienceAuction = async (req, res) => {
+    try {
+      res.render('audienceAuction', { title: 'Register New Admin' });
+   }
+   catch (error) {
+      console.error("Error in GET /register:", error);
+      res.status(500).json({ message: "Internal server error" });
+   }
+};
+
 auctionApiController.getState = async (req, res) => {
     try {
         const activeAuction = await Auction.findOne({
@@ -65,10 +70,7 @@ auctionApiController.getState = async (req, res) => {
     }
 };
 
-/**
- * POST /api/auction/session/start
- * Admin: Initialize global auction session
- */
+
 auctionApiController.startSession = async (req, res) => {
     try {
         global.auctionActive = true;
@@ -79,10 +81,7 @@ auctionApiController.startSession = async (req, res) => {
     }
 };
 
-/**
- * POST /api/auction/session/end
- * Admin: End global auction session
- */
+
 auctionApiController.endSession = async (req, res) => {
     try {
         global.auctionActive = false;
@@ -100,10 +99,6 @@ auctionApiController.endSession = async (req, res) => {
     }
 };
 
-/**
- * POST /api/auction/player/call
- * Admin: Call a player to the auction block
- */
 auctionApiController.callPlayer = async (req, res) => {
     try {
         const { playerId } = req.body;
@@ -151,10 +146,7 @@ auctionApiController.callPlayer = async (req, res) => {
     }
 };
 
-/**
- * POST /api/auction/bid
- * Owner: Place a bid
- */
+
 auctionApiController.placeBid = async (req, res) => {
     try {
         const { bidAmount } = req.body;
@@ -221,10 +213,7 @@ auctionApiController.placeBid = async (req, res) => {
     }
 };
 
-/**
- * POST /api/auction/sold
- * Admin: Mark current player as sold
- */
+
 auctionApiController.markSold = async (req, res) => {
     try {
         const auction = await Auction.findOne({
@@ -274,10 +263,7 @@ auctionApiController.markSold = async (req, res) => {
     }
 };
 
-/**
- * POST /api/auction/unsold
- * Admin: Mark current player as unsold
- */
+
 auctionApiController.markUnsold = async (req, res) => {
     try {
         const auction = await Auction.findOne({
@@ -307,10 +293,7 @@ auctionApiController.markUnsold = async (req, res) => {
     }
 };
 
-/**
- * GET /api/auction/bid-history/:playerId
- * Get bid history for a specific player
- */
+
 auctionApiController.getBidHistory = async (req, res) => {
     try {
         const { playerId } = req.params;
