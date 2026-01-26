@@ -1,69 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alert</title>
-</head>
-<body>
-
-<div class="fixed top-5 left-1/2 -translate-x-1/2 z-[100] w-full max-w-sm px-4 animate-fade-in">
-
-    <% if (locals.success_msg && success_msg.length > 0) { %>
-        <div class="alert-box flex items-center gap-4 bg-black/80 border-2 border-green-500 p-4 rounded-xl shadow-lg backdrop-blur-md animate-fade-in">
-            <div class="flex-shrink-0"><i class="fas fa-check-circle text-green-500 text-3xl"></i></div>
-            <div class="flex-1">
-                <p class="font-bold text-green-500 text-sm">SUCCESS</p>
-                <p class="text-white font-medium text-xs"><%=  success_msg[0] %></p>
-            </div>
-            <button onclick="closeAlert(this)" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
-        </div>
-
-    <% } else if (locals.error_msg && error_msg.length > 0) { %>
-        
-        <div class="alert-box flex items-center gap-4 bg-black/80 border-2 border-red-500 p-4 rounded-xl shadow-lg backdrop-blur-md animate-fade-in">
-            <div class="flex-shrink-0"><i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i></div>
-            <div class="flex-1">
-                <p class="font-bold text-red-500 text-sm">ERROR</p>
-                <p class="text-white font-medium text-xs"><%= error_msg[0] %></p>
-            </div>
-            <button onclick="closeAlert(this)" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
-        </div>
-
+<div class="fixed top-5 right-5 z-50 w-full max-w-sm px-4 space-y-3">
+  <% if (locals.success_msg && locals.success_msg.length> 0) { %>
+    <div
+      class="flex items-center gap-4 bg-green-600/20 border-l-4 border-green-500 text-green-800 p-4 rounded-xl shadow-lg backdrop-blur-sm animate-fade-in">
+      <div class="flex-shrink-0">
+        <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold text-green-700">Success!</p>
+        <p class="text-green-800 text-sm">
+          <%= success_msg %>
+        </p>
+      </div>
+      <button onclick="this.parentElement.remove()" class="text-green-500 hover:text-green-700 ml-2">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     <% } %>
 
+      <% if (locals.error_msg && locals.error_msg.length> 0) { %>
+        <div
+          class="flex items-center gap-4 bg-red-600/20 border-l-4 border-red-500 text-red-800 p-4 rounded-xl shadow-lg backdrop-blur-sm animate-fade-in">
+          <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
+          </div>
+          <div class="flex-1">
+            <p class="font-semibold text-red-700">Error!</p>
+            <p class="text-red-800 text-sm">
+              <%= error_msg %>
+            </p>
+          </div>
+          <button onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 ml-2">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <% } %>
 </div>
-
-<script>
-    // 1. Manual Close
-    function closeAlert(btn) {
-        const alert = btn.closest('.alert-box');
-        if (alert) alert.remove();
-    }
-
-    // 2. The Duplicate Killer
-    document.addEventListener('DOMContentLoaded', () => {
-        const allAlerts = document.querySelectorAll('.alert-box');
-        
-        // If the browser rendered more than one box, kill the extras immediately
-        if (allAlerts.length > 1) {
-            for (let i = 1; i < allAlerts.length; i++) {
-                allAlerts[i].remove();
-            }
-        }
-
-        // 3. Auto-Dismiss the one that remains
-        const remainingAlert = document.querySelector('.alert-box');
-        if (remainingAlert) {
-            setTimeout(() => {
-                remainingAlert.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-                remainingAlert.style.opacity = "0";
-                remainingAlert.style.transform = "translateY(-20px)";
-                setTimeout(() => remainingAlert.remove(), 500);
-            }, 4000);
-        }
-    });
-</script>
-
-</body>
-</html>

@@ -6,7 +6,7 @@ class playerModel extends Model {
         playerModel.belongsTo(models.Team, {
             foreignKey: 'teamId',
             as: 'team',
-            onDelete: 'SET NULL', 
+            onDelete: 'SET NULL',
             onUpdate: 'CASCADE'
         });
     }
@@ -97,9 +97,20 @@ playerModel.init({
         values: ['Bahadurabad', 'Clifton', 'Idara-e-noor', 'Phosphorus'],
         allowNull: false,
     },
+    // Captain/Vice-Captain roles
+    isCaptain: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    isViceCaptain: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
 }, {
     sequelize: sequelizeTZ,
-    modelName: 'Player', 
+    modelName: 'Player',
     tableName: 'players',
     timestamps: true,
     paranoid: true
