@@ -21,11 +21,11 @@ const sequelizeTZ = new Sequelize(config.DB_NAME, config.DB_USER, config.DB_PASS
     port: config.port,
     logging: false,
 
-    // ✅ CORRECT STRUCTURE:
     dialectOptions: {
-        ssl: process.env.NODE_ENV === 'production' ? {
-            require: true,
-            rejectUnauthorized: false
+        // Change this line to enable SSL whenever you are hitting the cloud
+        ssl: process.env.DB_SSL === 'true' ? {
+            minVersion: 'TLSv1.2',
+            rejectUnauthorized: true // TiDB Cloud recommends true for security
         } : false,
         connectTimeout: 60000
     },
@@ -36,8 +36,7 @@ const sequelizeTZ = new Sequelize(config.DB_NAME, config.DB_USER, config.DB_PASS
         acquire: 60000,
         idle: 10000
     }
-}
-);
+});
 
 sequelizeTZ.authenticate()
     .then(() => {

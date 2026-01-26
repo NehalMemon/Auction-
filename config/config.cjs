@@ -8,9 +8,11 @@ module.exports = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 4000,
     dialect: 'mysql',
-    dialectOptions: {
-      ssl: false
-    }
+   dialectOptions: {
+      ssl: {
+        // This is the specific requirement for TiDB Cloud Serverless
+        rejectUnauthorized: true,
+      },
   },
   test: {
     username: process.env.DB_USER,
@@ -20,9 +22,12 @@ module.exports = {
     port: process.env.DB_PORT || 4000,
     dialect: 'mysql',
     dialectOptions: {
-      ssl: false
+     ssl: {
+        // This is the specific requirement for TiDB Cloud
+        rejectUnauthorized: true, 
+      }
     }
-  },
+  }},
   production: {
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -32,9 +37,9 @@ module.exports = {
     dialect: 'mysql',
     dialectOptions: {
       ssl: {
-        require: true,
-        rejectUnauthorized: false
+        // This is the specific requirement for TiDB Cloud
+        rejectUnauthorized: true, 
       }
     }
   }
-};
+}
