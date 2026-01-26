@@ -38,7 +38,7 @@
                 </a>
 
                 <a href="/owner/ownerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors   
-                <%= (currentPath === '/owner/ownerslist' || currentPath.includes('/owner/profile'))
+                <%= (currentPath === '/owner/ownerslist' || currentPath.includes('/owner/profile') || currentPath.includes('/owner/register'))
                          ? 'bg-gray-700 text-white'
                          : '' %>">
                     <i class="fas fa-users w-6"></i>
@@ -46,7 +46,7 @@
                 </a>
 
                 <a href="/player/playerslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
-                <%= (currentPath === '/player/playerslist' || currentPath.includes('/player/profile'))
+                <%= (currentPath === '/player/playerslist' || currentPath.includes('/player/profile') || currentPath.includes('/player/register'))
                          ? 'bg-gray-700 text-white'
                          : '' %>">
                     <i class="fas fa-running w-6"></i>
@@ -54,7 +54,7 @@
                 </a>
                 <a href="/team/teamslist" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-700 hover:text-white rounded-lg transition-colors
               
-                <%= (currentPath === '/team/teamslist' || currentPath.includes('/team/profile/'))
+                <%= (currentPath === '/team/teamslist' || currentPath.includes('/team/profile/') || currentPath.includes('/team/register'))
                          ? 'bg-gray-700 text-white'
                          : '' %>">
                     <i class="fas fa-running w-6"></i>

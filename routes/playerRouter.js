@@ -13,4 +13,7 @@ router.get('/profile/:id', requireAdminOrOwner, playerController.renderPlayerPro
 router.post('/profile/delete/:id', requireAdminOrOwner, playerController.handleDelete);
 router.get('/profile/edit/:id', requireAdminAuth, playerController.renderEdit);
 router.post('/profile/edit/:id', requireAdminAuth,upload.single('playerImage'), validator(playerRegisterSchema,"editPlayer"), playerController.handleEdit);
+
+// suraish added route:
+router.post('/bulk-upload', requireAdminAuth, upload.single('playerFile'), playerController.handleBulkUpload);
 export default router;

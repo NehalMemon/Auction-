@@ -37,6 +37,7 @@
     "nodemon": "^3.1.11",
     "sequelize": "^6.37.7",
     "socket.io": "^4.8.3",
+    "xlsx": "^0.18.5",
     "zod": "^4.0.5"
   },
   "devDependencies": {
