@@ -18,12 +18,29 @@
 
         <div class="flex-1 flex flex-col overflow-hidden relative w-screen">
             
-            <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-8">
+            <!-- <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-8">
                 <h2 class="text-xl font-semibold text-gray-200">Manage Players</h2>
+                
                 <a href="/auth/player/register" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
                     <i class="fas fa-plus mr-2"></i> Add Player
                 </a>
-            </header>
+            </header> -->
+
+            <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-8">
+    <h2 class="text-xl font-semibold text-gray-200">Manage Players</h2>
+    <div class="flex items-center gap-3">
+        <form action="/player/bulk-upload" method="POST" enctype="multipart/form-data" class="flex items-center">
+            <label for="bulkFile" class="cursor-pointer bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-gray-600 flex items-center">
+                <i class="fas fa-file-upload mr-2 text-blue-400"></i> Bulk Upload
+            </label>
+            <input type="file" name="playerFile" id="bulkFile" class="hidden" onchange="this.form.submit()">
+        </form>
+
+        <a href="/auth/player/register" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
+            <i class="fas fa-plus mr-2"></i> Add Player
+        </a>
+    </div>
+</header>
 
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-900 p-8">
                 
@@ -38,7 +55,7 @@
                             <p class="mt-2 text-sm">Start by adding a new player to the auction pool.</p>
                         </div>
                     <% } else { %>
-                        <div class="overflow-x-auto">
+                        <!-- <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead class="bg-gray-700/50 text-xs uppercase text-gray-400 font-semibold tracking-wider">
                                     <tr>
@@ -114,7 +131,143 @@
                                     <% }) %>
                                 </tbody>
                             </table>
+                        </div> -->
+
+                        <!-- gemini code starts -->
+
+                        <!-- for md and big screen view -->
+                        <div class="overflow-hidden">
+    <div class="hidden md:block overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-700/50 text-xs uppercase text-gray-400 font-semibold tracking-wider">
+                <tr>
+                    <th class="px-6 py-4">Player Name</th>
+                    <th class="px-6 py-4">Role</th>
+                    <th class="px-6 py-4 text-center">Category</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700">
+                <% players.forEach(player => { %>
+                    <tr class="hover:bg-gray-700/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-12 w-12 flex-shrink-0 rounded-full flex items-center justify-center shadow-md border border-gray-600 overflow-hidden">
+                                     <img src="<%= player.playerImage %>" class="h-full w-full object-cover" alt="<%= player.name %>">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-white"><%= player.name %></div>
+                                    <div class="text-xs text-gray-400"><%= player.playingStyle %></div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-2">
+                                <% if (player.category === 'Batsman') { %>
+                                    <img src="/images/cricket-icons/bat.png" class="w-10 h-8">
+                                <% } else if (player.category === 'Bowler') { %>
+                                    <img src="/images/cricket-icons/Ball.png" class="w-8 h-8">
+                                <% } else if (player.category === 'All-rounder') { %>
+                                    <img src="/images/cricket-icons/BatsAndBoll.png" class="w-10 h-8">
+                                <% } else if (player.category === 'Wicket-keeper-batsman') { %>
+                                    <img src="/images/cricket-icons/Bat.png" class="w-8 h-8">
+                                    <img src="/images/cricket-icons/glovesGreen.png" class="w-8 h-8">
+                                <% } %>
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <% 
+                                let tierColor = 'text-slate-300 border-white/40 bg-slate-600/60  px-6 py-1'; 
+                                if(player.auctionCategory === 'Platinum') tierColor = 'text-blue-400 bg-blue-900/40 border-blue-700 font-bold px-3 py-1'; 
+                                else if(player.auctionCategory === 'Diamond') tierColor = 'text-purple-400 bg-purple-900/40 border-purple-700 px-3 py-1';
+                                else if(player.auctionCategory === 'Gold') tierColor = 'text-yellow-400 bg-yellow-900/30 border-yellow-700  px-6 py-1';
+                            %>
+                            <span class="text-[10px] uppercase tracking-wider px-3 py-1 rounded-full border <%= tierColor %>">
+                                <%= player.auctionCategory %>
+                            </span>
+                        </td>
+                        
+                        
+
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <% if (player.isSold) { %>
+                                <span class="flex items-center text-green-400 text-sm">
+                                    <span class="h-2 w-2 rounded-full bg-green-500 mr-2"></span> Sold
+                                </span>
+                            <% } else { %>
+                                <span class="flex items-center text-gray-400 text-sm">
+                                    <span class="h-2 w-2 rounded-full bg-gray-500 mr-2"></span> Unsold
+                                </span>
+                            <% } %>
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="/player/profile/<%= player.hashedId %>" class="text-white bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-xs transition-colors border border-gray-600">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+                        <!-- for sm and small screen view -->
+
+    <div class="sm:hidden bg-red-500/50 grid grid-cols-1 divide-y divide-gray-700">
+        <% players.forEach(player => { %>
+            <div class="p-4 flex items-center justify-between hover:bg-gray-700/20">
+                <div class="flex items-center space-x-3">
+                    <img src="<%= player.playerImage %>" class="h-12 w-12 rounded-full object-cover border border-gray-600">
+                    <div>
+                        <h4 class="text-sm font-bold text-white"><%= player.name %></h4>
+                        <!-- <p class="text-[10px] text-gray-400 uppercase tracking-tight"><%= player.auctionCategory %> • <%= player.category %></p> -->
+                         <% 
+                                let tierColor = 'text-slate-300 border-white/40 bg-slate-600/60  px-6 py-1'; 
+                                if(player.auctionCategory === 'Platinum') tierColor = 'text-blue-400 bg-blue-900/40 border-blue-700 font-bold px-3 py-1'; 
+                                else if(player.auctionCategory === 'Diamond') tierColor = 'text-purple-400 bg-purple-900/40 border-purple-700 px-3 py-1';
+                                else if(player.auctionCategory === 'Gold') tierColor = 'text-yellow-400 bg-yellow-900/30 border-yellow-700  px-6 py-1';
+                            %>
+                            <span class="text-[10px] uppercase tracking-wider px-3 py-1 rounded-full border <%= tierColor %>">
+                                <%= player.auctionCategory %>
+                            </span>
+                            
+                            
+                            
                         </div>
+                        <div>
+
+                            <span class="inline-flex items-center gap-2">
+                               <% if (player.category === 'Batsman') { %>
+                                   <img src="/images/cricket-icons/bat.png" class="w-10 h-8">
+                               <% } else if (player.category === 'Bowler') { %>
+                                   <img src="/images/cricket-icons/Ball.png" class="w-8 h-8">
+                               <% } else if (player.category === 'All-rounder') { %>
+                                   <img src="/images/cricket-icons/BatsAndBoll.png" class="w-10 h-8">
+                               <% } else if (player.category === 'Wicket-keeper-batsman') { %>
+                                   <img src="/images/cricket-icons/Bat.png" class="w-8 h-8">
+                                   <img src="/images/cricket-icons/glovesGreen.png" class="w-8 h-8">
+                               <% } %>
+                           </span>
+                        </div>
+                </div>
+                <div class="flex flex-col items-end space-y-2">
+                    <% if (player.isSold) { %>
+                        <span class="text-[10px] bg-green-900/30 text-green-400 px-2 py-0.5 rounded border border-green-800">SOLD</span>
+                    <% } else { %>
+                        <span class="text-[10px] bg-gray-700 text-gray-400 px-2 py-0.5 rounded border border-gray-600">UNSOLD</span>
+                    <% } %>
+                    <a href="/player/profile/<%= player.hashedId %>" class="text-blue-400 text-xs font-semibold">View Profile →</a>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<!-- Gemini code finish -->
 
                         <div class="px-6 py-4 bg-gray-800/50 border-t border-gray-700 flex items-center justify-between">
                             <div class="text-xs text-gray-400">

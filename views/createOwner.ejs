@@ -18,18 +18,6 @@
 
 <body class="bg-gray-900 text-gray-100 font-sans antialiased">
 
-    <!-- <div class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4 space-y-4">
-        <% if (locals.success_msg && locals.success_msg.length > 0) { %>
-            <div class="bg-green-500/10 border-l-4 border-green-500 text-green-400 p-4 rounded shadow-2xl backdrop-blur-sm flex items-center justify-between animate-bounce" role="alert">
-                <div><span class="font-bold">Success:</span> <%= success_msg %></div>
-            </div>
-        <% } %>
-        <% if ((locals.error_msg && locals.error_msg.length > 0) || (locals.error && locals.error.length > 0)) { %>
-            <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-4 rounded shadow-2xl backdrop-blur-sm flex items-center justify-between" role="alert">
-                <div><span class="font-bold">Error:</span> <%= locals.error_msg || locals.error %></div>
-            </div>
-        <% } %>
-    </div> -->
      <%- include('partials/alert') %>
 
     <div class="flex h-screen overflow-hidden">
@@ -40,7 +28,7 @@
             
             <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-8">
                 <div class="flex items-center gap-4">
-                    <a href="/admin/owners" class="text-gray-400 hover:text-white transition-colors">
+                    <a href="/owner/ownerslist" class="text-gray-400 hover:text-white transition-colors">
                         <i class="fas fa-arrow-left text-xl"></i>
                     </a>
                     <h2 class="text-xl font-semibold text-gray-200">Create New Owner</h2>
@@ -132,7 +120,7 @@
                             <hr class="border-gray-700 my-6">
 
                             <div class="flex items-center justify-end gap-4">
-                                <a href="/admin/owners" class="px-6 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors font-medium">
+                                <a href="/owner/ownerslist" class="px-6 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors font-medium">
                                     Cancel
                                 </a>
                                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-blue-500/20 transition-all flex items-center gap-2">
